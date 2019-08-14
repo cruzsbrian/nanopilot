@@ -1,0 +1,14 @@
+msg/ActuatorPositions.idl
+msg/ActuatorPositions.msg
+msg/ActuatorPositionsStamped.idl
+msg/ActuatorPositionsStamped.msg
+msg/AttitudeTrajectorySetpoint.idl
+msg/AttitudeTrajectorySetpoint.msg
+msg/RCInput.idl
+msg/RCInput.msg
+msg/RateControlSetpoint.idl
+msg/RateControlSetpoint.msg
+srv/SendMsgpackConfig.idl
+srv/SendMsgpackConfig.srv
+srv/SendMsgpackConfig_Request.msg
+srv/SendMsgpackConfig_Response.msg

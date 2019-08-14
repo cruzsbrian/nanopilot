@@ -23,6 +23,8 @@ public:
             "attitude_setpoint", 1, std::bind(&AttitudeCtrl::att_setpt_cb, this, _1));
         pose_sub = this->create_subscription<geometry_msgs::msg::PoseStamped>(
             "pose", 1, std::bind(&AttitudeCtrl::pose_cb, this, _1));
+        leg_pose_sub = this->create_subscription<autopilot_msgs::msg::ActuatorPositions>(
+            "hip_actuator_positions", 1, std::bind(&AttitudeCtrl::leg_pose_cb, this, _1));
         ctrl_pub = this->create_publisher<autopilot_msgs::msg::RateControlSetpoint>("control", 10);
 
         control_timer = create_wall_timer(
@@ -69,6 +71,7 @@ private:
         ctrl_msg.rate_control_setpoint.y = rate_setpt[1];
         ctrl_msg.rate_control_setpoint.z = rate_setpt[2];
         ctrl_msg.force = att_setpt_msg->force;
+        ctrl_msg.actuators.actuators = leg_pose_msg->actuators;
         ctrl_pub->publish(ctrl_msg);
         // RCLCPP_INFO(this->get_logger(), "ctrl '%f %f %f'", rate_setpt[0], rate_setpt[1], rate_setpt[2]);
     }
@@ -85,12 +88,20 @@ private:
         pose_msg = msg;
     }
 
+    void leg_pose_cb(const autopilot_msgs::msg::ActuatorPositions::SharedPtr msg)
+    {
+        leg_pose_msg = msg;
+    }
+
     // ROS Subscribers
     rclcpp::Subscription<autopilot_msgs::msg::AttitudeTrajectorySetpoint>::SharedPtr att_setpt_sub;
     autopilot_msgs::msg::AttitudeTrajectorySetpoint::SharedPtr att_setpt_msg;
 
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_sub;
     geometry_msgs::msg::PoseStamped::SharedPtr pose_msg;
+
+    rclcpp::Subscription<autopilot_msgs::msg::ActuatorPositions>::SharedPtr leg_pose_sub;
+    autopilot_msgs::msg::ActuatorPositions::SharedPtr leg_pose_msg;
 
     // ROS Publishers
     rclcpp::Publisher<autopilot_msgs::msg::RateControlSetpoint>::SharedPtr ctrl_pub;

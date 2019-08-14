@@ -1,0 +1,27 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/autopilot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/autopilot_msgs/msg/actuator_positions__type_support.c.o"
+  "CMakeFiles/autopilot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/autopilot_msgs/msg/actuator_positions_stamped__type_support.c.o"
+  "CMakeFiles/autopilot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/autopilot_msgs/msg/attitude_trajectory_setpoint__type_support.c.o"
+  "CMakeFiles/autopilot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/autopilot_msgs/msg/rate_control_setpoint__type_support.c.o"
+  "CMakeFiles/autopilot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/autopilot_msgs/msg/rc_input__type_support.c.o"
+  "CMakeFiles/autopilot_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/autopilot_msgs/srv/send_msgpack_config__type_support.c.o"
+  "libautopilot_msgs__rosidl_typesupport_introspection_c.pdb"
+  "libautopilot_msgs__rosidl_typesupport_introspection_c.so"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/actuator_positions__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/actuator_positions__type_support.c"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/actuator_positions_stamped__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/actuator_positions_stamped__type_support.c"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/attitude_trajectory_setpoint__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/attitude_trajectory_setpoint__type_support.c"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/rate_control_setpoint__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/rate_control_setpoint__type_support.c"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/rc_input__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/msg/rc_input__type_support.c"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/srv/send_msgpack_config__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/autopilot_msgs/srv/send_msgpack_config__type_support.c"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang C)
+  include(CMakeFiles/autopilot_msgs__rosidl_typesupport_introspection_c.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

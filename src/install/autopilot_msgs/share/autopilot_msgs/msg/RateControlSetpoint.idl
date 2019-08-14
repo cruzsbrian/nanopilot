@@ -1,0 +1,23 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from autopilot_msgs/msg/RateControlSetpoint.msg
+// generated code does not contain a copyright notice
+
+#include "autopilot_msgs/msg/ActuatorPositions.idl"
+#include "geometry_msgs/msg/Vector3.idl"
+#include "std_msgs/msg/Header.idl"
+
+module autopilot_msgs {
+  module msg {
+    struct RateControlSetpoint {
+      std_msgs::msg::Header header;
+
+      geometry_msgs::msg::Vector3 rate_control_setpoint;
+
+      geometry_msgs::msg::Vector3 feed_forward_torque;
+
+      geometry_msgs::msg::Vector3 force;
+
+      autopilot_msgs::msg::ActuatorPositions actuators;
+    };
+  };
+};

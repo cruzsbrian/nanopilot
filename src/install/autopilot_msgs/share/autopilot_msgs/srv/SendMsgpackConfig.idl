@@ -1,0 +1,17 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from autopilot_msgs/srv/SendMsgpackConfig.srv
+// generated code does not contain a copyright notice
+
+
+module autopilot_msgs {
+  module srv {
+    struct SendMsgpackConfig_Request {
+      sequence<octet> msgpack_config;
+    };
+    struct SendMsgpackConfig_Response {
+      boolean success;
+
+      string error_message;
+    };
+  };
+};

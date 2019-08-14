@@ -1,0 +1,11 @@
+{
+  "package_name": "autopilot_msgs",
+  "non_idl_tuples": [
+    "/home/brian/dev/leo/src/autopilot_msgs:msg/RCInput.msg",
+    "/home/brian/dev/leo/src/autopilot_msgs:msg/ActuatorPositions.msg",
+    "/home/brian/dev/leo/src/autopilot_msgs:msg/ActuatorPositionsStamped.msg",
+    "/home/brian/dev/leo/src/autopilot_msgs:msg/AttitudeTrajectorySetpoint.msg",
+    "/home/brian/dev/leo/src/autopilot_msgs:msg/RateControlSetpoint.msg",
+    "/home/brian/dev/leo/src/autopilot_msgs:srv/SendMsgpackConfig.srv"
+  ]
+}

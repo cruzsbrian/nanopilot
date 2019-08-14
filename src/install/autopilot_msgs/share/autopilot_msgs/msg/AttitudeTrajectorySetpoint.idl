@@ -1,0 +1,25 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from autopilot_msgs/msg/AttitudeTrajectorySetpoint.msg
+// generated code does not contain a copyright notice
+
+#include "geometry_msgs/msg/Quaternion.idl"
+#include "geometry_msgs/msg/Vector3.idl"
+#include "std_msgs/msg/Header.idl"
+
+module autopilot_msgs {
+  module msg {
+    @verbatim (language="comment", text=" Orientation with respect to frame given in header
+ rate & acceleration are given in the rotated (body) frame")
+    struct AttitudeTrajectorySetpoint {
+      std_msgs::msg::Header header;
+
+      geometry_msgs::msg::Quaternion orientation;
+
+      geometry_msgs::msg::Vector3 angular_rate;
+
+      geometry_msgs::msg::Vector3 angular_acceleration;
+
+      geometry_msgs::msg::Vector3 force;
+    };
+  };
+};

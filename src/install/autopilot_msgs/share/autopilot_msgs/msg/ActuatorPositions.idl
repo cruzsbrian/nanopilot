@@ -1,0 +1,15 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from autopilot_msgs/msg/ActuatorPositions.msg
+// generated code does not contain a copyright notice
+
+
+module autopilot_msgs {
+  module msg {
+    module ActuatorPositions_Constants {
+      const uint32 MAX_NB_ACTUATORS = 16;
+    };
+    struct ActuatorPositions {
+      sequence<float, 16> actuators;
+    };
+  };
+};

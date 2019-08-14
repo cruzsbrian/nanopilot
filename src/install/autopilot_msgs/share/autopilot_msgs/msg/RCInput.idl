@@ -1,0 +1,21 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from autopilot_msgs/msg/RCInput.msg
+// generated code does not contain a copyright notice
+
+#include "builtin_interfaces/msg/Time.idl"
+
+module autopilot_msgs {
+  module msg {
+    module RCInput_Constants {
+      const uint32 MAX_NB_CHANNELS = 16;
+    };
+    @verbatim (language="comment", text="std_msgs/Header header")
+    struct RCInput {
+      builtin_interfaces::msg::Time stamp;
+
+      sequence<float, 16> channels;
+
+      boolean signal;
+    };
+  };
+};

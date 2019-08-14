@@ -1,0 +1,10 @@
+/home/brian/dev/leo/src/install/attitude_control/lib/attitude_control/attitude_control
+/home/brian/dev/leo/src/install/attitude_control/share/ament_index/resource_index/package_run_dependencies/attitude_control
+/home/brian/dev/leo/src/install/attitude_control/share/ament_index/resource_index/parent_prefix_path/attitude_control
+/home/brian/dev/leo/src/install/attitude_control/share/attitude_control/local_setup.bash
+/home/brian/dev/leo/src/install/attitude_control/share/attitude_control/local_setup.sh
+/home/brian/dev/leo/src/install/attitude_control/share/attitude_control/local_setup.zsh
+/home/brian/dev/leo/src/install/attitude_control/share/ament_index/resource_index/packages/attitude_control
+/home/brian/dev/leo/src/install/attitude_control/share/attitude_control/cmake/attitude_controlConfig.cmake
+/home/brian/dev/leo/src/install/attitude_control/share/attitude_control/cmake/attitude_controlConfig-version.cmake
+/home/brian/dev/leo/src/install/attitude_control/share/attitude_control/package.xml

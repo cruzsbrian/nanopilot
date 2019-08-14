@@ -1,0 +1,6 @@
+/home/brian/dev/leo/src/build/autopilot_msgs/rosidl_adapter/autopilot_msgs:msg/RCInput.idl
+/home/brian/dev/leo/src/build/autopilot_msgs/rosidl_adapter/autopilot_msgs:msg/ActuatorPositions.idl
+/home/brian/dev/leo/src/build/autopilot_msgs/rosidl_adapter/autopilot_msgs:msg/ActuatorPositionsStamped.idl
+/home/brian/dev/leo/src/build/autopilot_msgs/rosidl_adapter/autopilot_msgs:msg/AttitudeTrajectorySetpoint.idl
+/home/brian/dev/leo/src/build/autopilot_msgs/rosidl_adapter/autopilot_msgs:msg/RateControlSetpoint.idl
+/home/brian/dev/leo/src/build/autopilot_msgs/rosidl_adapter/autopilot_msgs:srv/SendMsgpackConfig.idl
