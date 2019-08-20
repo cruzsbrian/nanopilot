@@ -197,6 +197,12 @@ class LinearOutputMixer: public OutputMixer {
                     output[i] += coeff[i] * ap_ctrl.feed_forward_torque_rpy[axis];
                 }
             }
+
+            for (int i = 0; i < NB_ACTUATORS; i++) {
+                if (output[i] < 0.1 && coeff[i] != 0) {
+                    output[i] = 0.1;
+                }
+            }
         }
     }
 

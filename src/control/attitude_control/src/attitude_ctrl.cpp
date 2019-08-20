@@ -7,10 +7,13 @@
 using std::placeholders::_1;
 #include <iostream>
 #include <chrono>
+#include <cmath>
 
 #include <Eigen/Dense>
 
 using namespace std::chrono_literals;
+
+const float kf = 0.;
 
 
 class AttitudeCtrl : public rclcpp::Node
@@ -64,6 +67,11 @@ private:
         } else {
             att_error_vec = 2*att_error.normalized().vec();
         }
+
+        ctrl_msg.feed_forward_torque.x = kf * sin(att_error_vec[0]);
+        ctrl_msg.feed_forward_torque.y = kf * sin(att_error_vec[1]);
+        ctrl_msg.feed_forward_torque.z = kf * sin(att_error_vec[2]);
+
         Eigen::Vector3d rate_setpt = -K.cwiseProduct(att_error_vec);
         rate_setpt = rate_setpt.cwiseMin(max_rate_setpt).cwiseMax(-max_rate_setpt);
         ctrl_msg.header.stamp = pose_msg->header.stamp;
