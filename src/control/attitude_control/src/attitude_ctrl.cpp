@@ -13,8 +13,6 @@ using std::placeholders::_1;
 
 using namespace std::chrono_literals;
 
-const float kf = 0.;
-
 
 class AttitudeCtrl : public rclcpp::Node
 {
@@ -46,11 +44,21 @@ private:
         if (!pose_msg || !att_setpt_msg) {
             return;
         }
-        double roll_time_cst = 0.1; // [s]
-        double pitch_time_cst = 0.1; // [s]
-        double yaw_time_cst = 0.5; // [s]
+
+        double roll_time_cst; // [s]
+        double pitch_time_cst; // [s]
+        double yaw_time_cst; // [s]
+        double torque_kf;
+
+        this->get_parameter_or("roll_time_cst", roll_time_cst, 0.1);
+        this->get_parameter_or("pitch_time_cst", pitch_time_cst, 0.1);
+        this->get_parameter_or("yaw_time_cst", yaw_time_cst, 0.5);
+        this->get_parameter_or("torque_kf", torque_kf, 0.0);
+
         Eigen::Vector3d K(1/roll_time_cst, 1/pitch_time_cst, 1/yaw_time_cst);
+
         Eigen::Vector3d max_rate_setpt(2, 2, 2);
+
         auto setpt_body_to_nav = Eigen::Quaterniond(att_setpt_msg->orientation.w,
             att_setpt_msg->orientation.x,
             att_setpt_msg->orientation.y,
@@ -68,9 +76,9 @@ private:
             att_error_vec = 2*att_error.normalized().vec();
         }
 
-        ctrl_msg.feed_forward_torque.x = kf * sin(att_error_vec[0]);
-        ctrl_msg.feed_forward_torque.y = kf * sin(att_error_vec[1]);
-        ctrl_msg.feed_forward_torque.z = kf * sin(att_error_vec[2]);
+        ctrl_msg.feed_forward_torque.x = torque_kf * sin(att_error_vec[0]);
+        ctrl_msg.feed_forward_torque.y = torque_kf * sin(att_error_vec[1]);
+        ctrl_msg.feed_forward_torque.z = torque_kf * sin(att_error_vec[2]);
 
         Eigen::Vector3d rate_setpt = -K.cwiseProduct(att_error_vec);
         rate_setpt = rate_setpt.cwiseMin(max_rate_setpt).cwiseMax(-max_rate_setpt);
