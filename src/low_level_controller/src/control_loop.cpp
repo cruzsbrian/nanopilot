@@ -8,6 +8,7 @@
 #include "sensors.hpp"
 
 #include "control_loop.hpp"
+#include "low_pass_filter.hpp"
 
 msgbus::Topic<bool> output_armed_topic;
 msgbus::Topic<bool> ap_in_control_topic;
@@ -34,6 +35,13 @@ static parameter_t roll_rate_gain_param;
 static parameter_t pitch_rate_gain_param;
 static parameter_t yaw_rate_gain_param;
 static parameter_t R_board_to_body_param;
+
+static LowPassFilter left_front_lpf;
+static LowPassFilter left_rear_lpf;
+static LowPassFilter left_hip_lpf;
+static LowPassFilter right_front_lpf;
+static LowPassFilter right_rear_lpf;
+static LowPassFilter right_hip_lpf;
 
 
 static bool arm_remote_switch_is_armed(const struct rc_input_s &rc_inputs)
@@ -112,6 +120,15 @@ static THD_FUNCTION(control_thread, arg)
             float loop_frequency = parameter_scalar_get(&control_loop_freq);
             loop_period_us = 1e6/loop_frequency;
             s_rate_controller->set_update_frequency(loop_frequency);
+
+            // Set Low Pass Filter Frequencies
+            left_front_lpf.set_update_frequency(loop_frequency);
+            left_rear_lpf.set_update_frequency(loop_frequency);
+            left_hip_lpf.set_update_frequency(loop_frequency);
+
+            right_front_lpf.set_update_frequency(loop_frequency);
+            right_rear_lpf.set_update_frequency(loop_frequency);
+            right_hip_lpf.set_update_frequency(loop_frequency);
         }
         if (parameter_changed(&R_board_to_body_param)) {
             parameter_vector_get(&R_board_to_body_param, R_board_to_body.data());
@@ -154,7 +171,7 @@ static THD_FUNCTION(control_thread, arg)
             if (ap_ctrl_en) {
                 if (sub_ap_ctrl.has_value()) {
                     ap_ctrl_msg = sub_ap_ctrl.get_value();
-                    if (fabsf(timestamp_duration(ap_ctrl_msg.timestamp, now)) < 0.1f) {
+                    if (fabsf(timestamp_duration(ap_ctrl_msg.timestamp, now)) < 0.3f) {
                         rate_setpoint_rpy = ap_ctrl_msg.rate_setpoint_rpy;
                         ap_in_control = true;
                     } else {
@@ -176,6 +193,14 @@ static THD_FUNCTION(control_thread, arg)
                                         rate_ctrl_output.data());
             s_output_mixer->mix(rate_ctrl_output.data(), rc_in, ap_ctrl_msg, ap_in_control, output);
 
+            output[0] = left_front_lpf.process(output[0]);
+            output[1] = left_rear_lpf.process(output[1]);
+            output[2] = right_front_lpf.process(output[2]);
+            output[3] = right_rear_lpf.process(output[3]);
+            output[4] = left_hip_lpf.process(output[4]);
+            output[6] = right_hip_lpf.process(output[6]);
+
+
             actuators_set_output(output);
 
             output_armed_topic.publish(true);
@@ -190,6 +215,11 @@ static THD_FUNCTION(control_thread, arg)
             for (float &o: output) {
                 o = 0;
             }
+            output[0] = 0.7;
+            output[1] = 0.7;
+            output[2] = 0.7;
+            output[3] = 0.7;
+            
             actuators_set_output(output);
             actuator_output_topic.publish(output);
             output_armed_topic.publish(false);
@@ -215,6 +245,13 @@ void control_init()
     parameter_scalar_declare_with_default(&roll_rate_gain_param, &rc_ns, "roll_rate_gain", 2*3.14f);
     parameter_scalar_declare_with_default(&pitch_rate_gain_param, &rc_ns, "pitch_rate_gain", 2*3.14f);
     parameter_scalar_declare_with_default(&yaw_rate_gain_param, &rc_ns, "yaw_rate_gain", 2*3.14f);
+
+    left_front_lpf.declare_parameters(&control_ns, "left_front_lpf");
+    left_rear_lpf.declare_parameters(&control_ns, "left_rear_lpf");
+    left_hip_lpf.declare_parameters(&control_ns, "left_hip_lpf");
+    right_front_lpf.declare_parameters(&control_ns, "right_front_lpf");
+    right_rear_lpf.declare_parameters(&control_ns, "right_rear_lpf");
+    right_hip_lpf.declare_parameters(&control_ns, "right_hip_lpf");
 
     static float R_board_to_body[9] = {1, 0, 0,
                                         0, 1, 0,

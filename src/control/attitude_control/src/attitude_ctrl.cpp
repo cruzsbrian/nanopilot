@@ -79,7 +79,9 @@ private:
         ctrl_msg.rate_control_setpoint.y = rate_setpt[1];
         ctrl_msg.rate_control_setpoint.z = rate_setpt[2];
         ctrl_msg.force = att_setpt_msg->force;
-        ctrl_msg.actuators.actuators = leg_pose_msg->actuators;
+        if (leg_pose_msg) {
+            ctrl_msg.actuators.actuators = leg_pose_msg->actuators;
+        }
         ctrl_pub->publish(ctrl_msg);
         // RCLCPP_INFO(this->get_logger(), "ctrl '%f %f %f'", rate_setpt[0], rate_setpt[1], rate_setpt[2]);
     }

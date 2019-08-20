@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray
+from autopilot_msgs.msg import ActuatorPositions
 
 import sympy as sp
 from sympy import sin, cos, sqrt, Matrix, symbols, acos, atan, asin, N
@@ -25,7 +25,7 @@ l5 = 23.5
 l6 = 5
 l7 = 7.505
 
-file = open("foot_positions.txt", "r")
+file = open("angle_positions.txt", "r")
 
 traj = []
 
@@ -80,30 +80,42 @@ class Inverse_Kinematics(Node):
 	def __init__(self):
 		super().__init__('ik')
 
-		# the name of the channel/topic is 'hip_actuators' and contains theta1, theta2, theta3; message type is Float32MultiArray
-		self.publisher = self.create_publisher(Float32MultiArray, 'hip_actuator_positions')
+		# the name of the channel/topic is 'hip_actuators' and contains theta1, theta2, theta3; message type is ActuatorPositions
+		self.publisher = self.create_publisher(ActuatorPositions, 'hip_actuator_positions')
 
-		self.timer = self.create_timer(0.025, self.timer_callback)
+		self.timer = self.create_timer(0.05, self.timer_callback)
 		self.i = 0
 	
 
 	def timer_callback(self):
-		# msg2 is hip actuator angles, type Float32MultiArray of dim 1x3
+		# msg2 is hip actuator angles, type ActuatorPositions of dim 1x3
 		# multiarray(i,j,k) refers to the ith row, jth column, and kth channel
-		msg = Float32MultiArray()
+		msg = ActuatorPositions()
 		i = self.i
-		(xL, yL, zL, xR, yR, zR) = (traj[i][0], traj[i][1], traj[i][2], traj[i][3], traj[i][4], traj[i][5])
+		#(xL, yL, zL, xR, yR, zR) = (traj[i][0], traj[i][1], traj[i][2], traj[i][3], traj[i][4], traj[i][5])
 
 		#(theta1L, theta2L, theta3L) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xL, yL, zL)
 		#(theta1R, theta2R, theta3R) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xR, yR, zR)
 
-		#msg.data = [theta1L, theta2L, theta3L, theta1R, theta2R, theta3R, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-		msg.data = [xL, yL, zL, xR, yR, zR, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		(theta1L, theta2L, theta3L) = (traj[i][0], traj[i][1], traj[i][2])
+		(theta1R, theta2R, theta3R) = (traj[i][3], traj[i][4], traj[i][5])
+		#(theta1R, theta2R, theta3R) = (0.7, 0.7, 0.0)
+		# Port 1: Left Front
+		# Port 2: Left Rear
+		# Port 3: Right Front
+		# Port 4: Right Rear
+		# Port 5: Left Hip
+		# Port 7: Right Hip
 
-		self.get_logger().info('Publishing: "%s"' % msg.data)
+		msg.actuators = [theta1L, theta2L, theta1R, theta2R, theta3L, 0.0, theta3R, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		#msg.actuators = [xL, yL, zL, xR, yR, zR, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+		#msg.actuators = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+
+		self.get_logger().info('Publishing: "%s"' % msg.actuators)
 		self.publisher.publish(msg)
 
-		self.i = (self.i + 1);# % len(traj); 
+		self.i = (self.i + 1) % len(traj); 
 
 def main (args=None):
 	rclpy.init(args=args)
