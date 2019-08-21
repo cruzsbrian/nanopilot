@@ -28,6 +28,11 @@ public:
             "hip_actuator_positions", 1, std::bind(&AttitudeCtrl::leg_pose_cb, this, _1));
         ctrl_pub = this->create_publisher<autopilot_msgs::msg::RateControlSetpoint>("control", 10);
 
+        this->declare_parameter("roll_time_cst", 0.1);
+        this->declare_parameter("pitch_time_cst", 0.1);
+        this->declare_parameter("yaw_time_cst", 0.5);
+        this->declare_parameter("torque_kf", 0.5);
+
         control_timer = create_wall_timer(
             20ms, std::bind(&AttitudeCtrl::control_update, this));
     }
