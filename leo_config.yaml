@@ -1,0 +1,104 @@
+actuators:
+  pwm_1_to_4_output_period_us: 3000.000000000
+  pwm_5_to_8_output_period_us: 3000.000000000
+  pwm_9_to_12_output_period_us: 3000.000000000
+  pwm_13_to_16_output_period_us: 3000.000000000
+  pwm1: # left front
+    min_pos_us: 950.000000000
+    max_pos_us: 2000.000000000
+    gain_us: 500.000000000
+    center_pos_us: 1000.000000000
+  pwm2: # left rear
+    min_pos_us: 1000.000000000
+    max_pos_us: 2100.000000000
+    gain_us: -520.000000000
+    center_pos_us: 2060.000000000
+  pwm3: # right front
+    min_pos_us: 1000.000000000
+    max_pos_us: 2100.000000000
+    gain_us: -520.000000000
+    center_pos_us: 2050.000000000
+  pwm4: # right rear
+    min_pos_us: 950.000000000
+    max_pos_us: 2000.000000000
+    gain_us: 500.000000000
+    center_pos_us: 990.000000000
+  pwm5: # left hip
+    min_pos_us: 1000.000000000
+    max_pos_us: 2000.000000000
+    gain_us: -1050.000000000
+    center_pos_us: 1550.000000000
+  pwm7: # right hip
+    min_pos_us: 1000.000000000
+    max_pos_us: 2000.000000000
+    gain_us: 1050.000000000
+    center_pos_us: 1420.000000000
+  pwm9: # prop left front
+    min_pos_us: 1000.000000000
+    max_pos_us: 2000.000000000
+    gain_us: 1000.000000000
+    center_pos_us: 1000.000000000
+  pwm10: # prop right front
+    min_pos_us: 1000.000000000
+    max_pos_us: 2000.000000000
+    gain_us: 1000.000000000
+    center_pos_us: 1000.000000000
+  pwm11: # prop left rear
+    min_pos_us: 1000.000000000
+    max_pos_us: 2000.000000000
+    gain_us: 1000.000000000
+    center_pos_us: 1000.000000000
+  pwm12: # prop right rear
+    min_pos_us: 1000.000000000
+    max_pos_us: 2000.000000000
+    gain_us: 1000.000000000
+    center_pos_us: 1000.000000000
+rc:
+  yaw_rate_gain: 4.0
+  pitch_rate_gain: 2.
+  roll_rate_gain: 2.
+  yaw_channel: 4
+  pitch_channel: 3
+  roll_channel: 2
+  arm_threshold: -0.1
+  arm_channel: 5
+control:
+  # 90 around y and 90  in z: https://www.andre-gaschler.com/rotationconverter/
+  R_board_to_body: [
+    0.0, 0.0, 1.0,
+    1.0, 0.0, 0.0,
+    0.0, 1.0, 0.0]
+  loop_frequency: 300.000000000
+  LinearMixer:
+    rc_in10: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in9: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in8: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in7: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in6: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in5: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in4: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in3: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in2: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0]
+    rc_in1: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  0.5, 0.5, 0.5, 0.5,  0.0, 0.0, 0.0, 0.0]
+    bias: [0.0, 1.5707963268, 0.0, 1.5707963268,  0.0, 0.0, 0.0, 0.0,  0.5, 0.5, 0.5, 0.5,  0.0, 0.0, 0.0, 0.0]
+    yaw: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  1.0, -1.0, -1.0, 1.0,  0.0, 0.0, 0.0, 0.0]
+    pitch: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  -1.0, -1.0, 1.0, 1.0,  0.0, 0.0, 0.0, 0.0]
+    roll: [0.0, 0.0, 0.0, 0.0,  0.0, 0.0, 0.0, 0.0,  -1.0, 1.0, -1.0, 1.0,  0.0, 0.0, 0.0, 0.0]
+  pid_yaw_controller:
+    I_out_limit: 1.000000000
+    Kd: 0.000000000
+    Ki: 0.000000000
+    Kp: 0.150000000
+  pid_pitch_controller:
+    I_out_limit: 0.500000000
+    Kd: 0.0001000
+    Ki: 0.00000
+    Kp: 0.2000
+  pid_roll_controller:
+    I_out_limit: 1.000000000
+    Kd: 0.000000000
+    Ki: 0.00000000
+    Kp: 0.1500000
+  yaw_low_pass_cutoff: 50.000000000
+  pitch_low_pass_cutoff: 50.000000000
+  roll_low_pass_cutoff: 50.000000000
