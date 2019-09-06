@@ -184,8 +184,8 @@ private:
     void imu_cb(const sensor_msgs::msg::Imu::SharedPtr msg)
     {
         // todo use tf2
-        Eigen::Quaterniond imu_to_body(Eigen::AngleAxisd(0.5*M_PI, Eigen::Vector3d::UnitZ())
-                                        * Eigen::AngleAxisd(M_PI,  Eigen::Vector3d::UnitY()));
+        Eigen::Quaterniond imu_to_body(Eigen::AngleAxisd(0.5*M_PI, Eigen::Vector3d::UnitY())
+                                        * Eigen::AngleAxisd(0.5*M_PI,  Eigen::Vector3d::UnitZ()));
 
         if (prev_imu_msg) {
             rclcpp::Duration dt = rclcpp::Time(msg->header.stamp) - rclcpp::Time(prev_imu_msg->header.stamp);
