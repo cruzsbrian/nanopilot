@@ -2,6 +2,7 @@
 #include "hal.h"
 #include <chprintf.h>
 #include <string.h>
+#include <cmath>
 #include <arm-cortex-tools/mpu.h>
 #include <arm-cortex-tools/fault.h>
 #include "panic_handler.h"
@@ -194,7 +195,7 @@ class LinearOutputMixer: public OutputMixer {
             for (int axis=0; axis < 3; axis++) {
                 parameter_vector_read(&m_rpy_ctrl_mix[axis], coeff.data());
                 for (int i = 0; i < NB_ACTUATORS; i++) {
-                    output[i] += coeff[i] * ap_ctrl.feed_forward_torque_rpy[axis];
+                    output[i] += std::sqrt(coeff[i] * ap_ctrl.feed_forward_torque_rpy[axis]);
                 }
             }
 
