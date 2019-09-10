@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: turtlesim
+Description: Description of turtlesim
+Version: 0.9.0
+Cflags: -I/opt/ros/melodic/include
+Libs: -L/opt/ros/melodic/lib 
+Requires: geometry_msgs message_runtime std_msgs std_srvs

@@ -1,0 +1,14 @@
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include
+libincludedir=${prefix}/lib/arm-linux-gnueabihf/libzip/include
+
+zipcmp=/usr/bin/zipcmp
+
+Name: libzip
+Description: library for handling zip archives
+Version: 1.1.2
+Libs:  -L${libdir} -lzip -lz 
+Cflags: -I${includedir} -I${libincludedir}
+

@@ -1,0 +1,665 @@
+#!/bin/bash
+#
+# Copyright (c) Authors: http://www.armbian.com/authors, info@armbian.com
+#
+# This file is licensed under the terms of the GNU General Public
+# License version 2. This program is licensed "as is" without any
+# warranty of any kind, whether express or implied.
+
+# Functions:
+# main
+# check_desktop
+# exceptions
+# check_if_installed
+# is_package_manager_running
+# display_qr_code
+# beta_disclaimer
+# show_box
+# description
+# reload_bsp
+# other_kernel_version
+# aval_kernel
+# aval_dtbs
+# get_a20modes
+# get_h3modes
+# add_choose_user
+# configure_desktop
+
+#
+# gather info about the board and start with loading menu
+#
+function main(){
+
+	DIALOG_CANCEL=1
+	DIALOG_ESC=255
+
+	[[ -f /etc/armbian-release ]] && source /etc/armbian-release && ARMBIAN="Armbian $VERSION $IMAGE_TYPE";
+	DISTRO=$(lsb_release -is)
+	DISTROID=$(lsb_release -sc)
+	KERNELID=$(uname -r)
+	[[ -z "${ARMBIAN// }" ]] && ARMBIAN="$DISTRO $DISTROID"
+	DEFAULT_ADAPTER=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)')
+	LOCALIPADD=$(ip -4 addr show dev $DEFAULT_ADAPTER | awk '/inet/ {print $2}' | cut -d'/' -f1)
+	BACKTITLE="Configuration utility, $ARMBIAN"
+	[[ -n "$LOCALIPADD" ]] && BACKTITLE=$BACKTITLE", "$LOCALIPADD
+	TITLE="$BOARD_NAME "
+	[[ -z "${DEFAULT_ADAPTER// }" ]] && DEFAULT_ADAPTER="lo"
+	OVERLAYDIR="/boot/dtb/overlay";
+	[[ "$LINUXFAMILY" == "sunxi64" ]] && OVERLAYDIR="/boot/dtb/allwinner/overlay";
+	# detect desktop
+	check_desktop
+	dialog --backtitle "$BACKTITLE" --title "Please wait" --infobox "\nLoading Armbian configuration utility ... " 5 45
+	sleep 1
+
+}
+
+
+
+#
+# compare two strings in dot separated version format
+#
+vercomp () {
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if [[ -z ${ver2[i]} ]]
+        then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
+}
+
+
+
+
+#
+# test compare two strings $1="3.4.12" $2="5.4.2" $3="<" returns 0 if relation is correct
+#
+testvercomp () {
+    vercomp $1 $2
+    case $? in
+        0) op='=';;
+        1) op='>';;
+        2) op='<';;
+    esac
+    if [[ $op != $3 ]]
+    then
+		return 1
+    else
+		return 0
+    fi
+}
+
+
+
+
+#
+# read desktop parameters
+#
+function check_desktop()
+{
+DISPLAY_MANAGER=""; DESKTOP_INSTALLED=""
+check_if_installed nodm && DESKTOP_INSTALLED="nodm";
+check_if_installed lightdm && DESKTOP_INSTALLED="lightdm";
+check_if_installed lightdm && DESKTOP_INSTALLED="gnome";
+[[ -n $(service lightdm status 2> /dev/null | grep -w active) ]] && DISPLAY_MANAGER="lightdm"
+[[ -n $(service nodm status 2> /dev/null | grep -w active) ]] && DISPLAY_MANAGER="nodm"
+[[ -n $(service gdm status 2> /dev/null | grep -w active) ]] && DISPLAY_MANAGER="gdm"
+}
+
+
+
+
+#
+# naming exceptions for packages
+#
+function exceptions ()
+{
+
+	TARGET_FAMILY=$LINUXFAMILY
+	UBOOT_BRANCH=$TARGET_BRANCH # uboot naming is different
+
+	if [[ $TARGET_BRANCH == "default" ]]; then TARGET_BRANCH=""; else TARGET_BRANCH="-"$TARGET_BRANCH; fi
+	# pine64
+	if [[ $TARGET_FAMILY == pine64 ]]; then
+		TARGET_FAMILY="sunxi64"
+	fi
+	# allwinner legacy kernels
+	if [[ $TARGET_FAMILY == sun*i ]]; then
+		TARGET_FAMILY="sunxi"
+		if [[ $UBOOT_BRANCH == "default" ]]; then
+			TARGET_FAMILY=$(cat /proc/cpuinfo | grep "Hardware" | sed 's/^.*Allwinner //' | awk '{print $1;}')
+		fi
+	fi
+
+}
+
+
+
+
+#
+# check dpkg status of $1 -- currently only 'not installed at all' case catched
+#
+check_if_installed (){
+
+	local DPKG_Status="$(dpkg -s "$1" 2>/dev/null | awk -F": " '/^Status/ {print $2}')"
+	if [[ "X${DPKG_Status}" = "X" || "${DPKG_Status}" = *deinstall* ]]; then
+		return 1
+	else
+		return 0
+	fi
+}
+
+
+
+
+#
+# check if package manager is doing something
+#
+function is_package_manager_running() {
+
+  fuser -s /var/lib/dpkg/lock
+  if [[ $? = 0 ]]; then
+    # 0 = true
+	dialog --colors --title " \Z1Error\Z0 " --backtitle "$BACKTITLE" --no-collapse --msgbox \
+	"\n\Z0Package manager is running in the background. \n\nCan't install dependencies. Try again later." 9 53
+    return 0
+  else
+    # 1 = false
+    return 1
+  fi
+
+}
+
+
+
+#
+# wget with dialog progress bar $1=URL $2=parameters
+#
+function fancy_wget()
+{
+LANG=C wget $2 --progress=bar:force:noscroll $1 2>&1 | stdbuf -i0 -o0 -e0 tr '>' '\n' | \
+stdbuf -i0 -o0 -e0 sed -rn 's/^.*\<([0-9]+)%\[.*$/\1/p' | dialog --backtitle "$BACKTITLE" --title " Downloading " \
+--gauge "Please wait" 7 70 0
+}
+
+
+
+#
+# display qr code for google authemtication method
+#
+function display_qr_code()
+{
+		clear
+		SECRET=$(head -1 /root/.google_authenticator)
+		qrencode -d 9 -8 -t UTF8 "otpauth://totp/test?secret=$SECRET"
+		echo -e "\nSetting up your OTP-generator\
+		\nInstall Google Authenticator generator application on your mobile phone from Android market (e.g. FreeOTP) or from F-Droid.\
+		\nIn the applications menu click the corresponding button to create a new account and either scan the QR code, or enter the secret key manually:\
+		\n\n$SECRET \n\nNow you should see a new passcode token being generated every 60 seconds on your phone.\n"  | fold -sw 38
+		read -n 1 -s -r -p "Press any key to continue"
+}
+
+
+
+
+#
+# show disclaimer
+#
+function beta_disclaimer ()
+{
+exec 3>&1
+	ACKNOWLEDGEMENT=$(dialog --nocancel --backtitle "$BACKTITLE" --no-collapse --title " Warning " \
+	--clear \--radiolist "\n$1\n \n" 11 56 5 "Yes, I understand" "" off	 2>&1 1>&3)
+exec 3>&-
+}
+
+
+
+
+#
+# show box
+#
+function show_box ()
+{
+	dialog --colors --backtitle "$BACKTITLE" --no-collapse --title " $1 " --clear --msgbox "\n$2\n \n" $3 56
+}
+
+
+
+
+#
+# show description for MOTD files
+#
+function description
+{
+	case $1 in
+		*header*)
+			echo "Big board logo and kernel info"
+		;;
+		*sysinfo*)
+			echo "Sysinfo - load, ip, memory, uptime, ..."
+		;;
+		*tips*)
+			echo "Shows tip of the day"
+		;;
+		*updates*)
+			echo "Display number of available updates"
+		;;
+		*armbian-config*)
+			echo "Show command for system configuration"
+		;;
+		*autoreboot-warn*)
+			echo "Show warning when reboot is needed"
+		;;
+		*uk.armbian.com*)
+			echo "United Kingdom"
+		;;
+		*.armbian.com*)
+			echo "Estonia"
+		;;
+		*)
+		echo ""
+		;;
+	esac
+}
+
+
+
+
+#
+# kernel descriptions in more human friendly format
+#
+function kernel_desc ()
+{
+        [[ "$1" == "dev" ]]     && echo "development, unstable"
+        [[ "$1" == "next" ]]    && echo "mainline or 2nd generation"
+        [[ "$1" == "default" ]] && echo "legacy, stock, 1st build"
+}
+
+
+
+#
+# reload kernel, bsp and armbian-config
+#
+function reload_bsp(){
+        debconf-apt-progress -- apt-get update
+        # test install packages
+        TARGET_BRANCH=$BRANCH
+        exceptions "$INSTALL_KERNEL"
+        dialog --backtitle "$BACKTITLE" --title "Please wait" --infobox "\nTest install ..." 5 36
+        apt-get -s -y -qq --no-install-recommends install linux-image${TARGET_BRANCH}-${TARGET_FAMILY} \
+        linux-headers${TARGET_BRANCH}-${TARGET_FAMILY} linux-u-boot-${BOARD}-${UBOOT_BRANCH} \
+        linux-$(lsb_release -cs)-root$TARGET_BRANCH-$BOARD > /dev/null 2>&1
+        # if test download is ok, remove old packages
+        if [[ $? = 0 ]]; then
+                dialog --backtitle "$BACKTITLE" --title "Please wait" --infobox "\nRemoving current kernel ..." 5 36
+                aptitude remove ~nlinux-image --quiet=100 -y >> /var/log/upgrade.log 2>&1
+                aptitude remove ~nlinux-dtb --quiet=100 -y >> /var/log/upgrade.log 2>&1
+                aptitude remove ~nlinux-headers --quiet=100 -y >> /var/log/upgrade.log 2>&1
+                aptitude remove ~nlinux-$(lsb_release -cs)-root --quiet=100 -y >> /var/log/upgrade.log 2>&1
+                aptitude remove ~narmbian-config --quiet=100 -y >> /var/log/upgrade.log 2>&1
+                # install packages
+                INSTALL_DTB=""
+                [[ -n $(apt-cache search --names-only "^linux-dtb$TARGET_BRANCH-$TARGET_FAMILY") ]] && \
+                INSTALL_DTB="linux-dtb$TARGET_BRANCH-$TARGET_FAMILY"
+                debconf-apt-progress -- apt-get --reinstall -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
+                -y -qq --no-install-recommends install linux-image${TARGET_BRANCH}-${TARGET_FAMILY} \
+                linux-headers${TARGET_BRANCH}-${TARGET_FAMILY} linux-u-boot-${BOARD}-${UBOOT_BRANCH} \
+                linux-$(lsb_release -cs)-root$TARGET_BRANCH-$BOARD armbian-config $INSTALL_DTB
+                dialog --title "Switching to $1" --backtitle "$BACKTITLE" --yes-label "Reboot" \
+		--no-label "Cancel" --yesno "\nReboot to apply new settings?" 7 34
+                if [[ $? = 0 ]]; then reboot; fi
+        fi
+}
+
+
+function other_kernel_version ()
+{
+
+        IFS=$'\r\n'
+        GLOBIGNORE='*'
+	TARGET_BRANCH="-"${BRANCH}
+	[[ $BRANCH == "default" ]] && TARGET_BRANCH=""
+	CURRENT_VERSION=$(apt-cache policy linux-image${TARGET_BRANCH}-${LINUXFAMILY} | grep Installed| sed -n -e 's/^.*Installed: //p')
+	LIST=($(apt-cache show linux-image${TARGET_BRANCH}-${LINUXFAMILY} | grep -E  "version: |Version:"  | sed -n -e 's/^.*ersion: //p' | sed 's/\.$//g' | head -20))
+
+	# make a temporally array
+	new_list=()
+	for ((n=0;n<$((${#LIST[@]}));n++));
+	do
+		# skip currently installed package
+		if [[ ${LIST[$n]} == $CURRENT_VERSION  ]]; then
+			n=$(( $n + 1 ))
+	        else
+			new_list+=( "${LIST[$n]}" )
+	fi
+	done
+
+	# copy back to main array
+	LIST=("${new_list[@]}")
+	LIST_LENGHT=$((${#LIST[@]}/2));
+
+        if [ "$LIST_LENGHT" -eq 0 ]; then
+                        dialog --backtitle "$BACKTITLE" --title " linux-image${TARGET_BRANCH}-${LINUXFAMILY} " --msgbox  "\nOther versions are not available!" 7 38
+        else
+                        beta_disclaimer "Switching between kernels might change functionality of your board or it might fail to boot."
+                        if [[ -n $ACKNOWLEDGEMENT ]]; then
+                                exec 3>&1
+                                TARGET_VERSION=$(dialog --cancel-label "Cancel" --backtitle "$BACKTITLE" --no-collapse \
+                                --title "Switch to other kernel versions" --clear --menu "\nSwitch from package ${CURRENT_VERSION} / $(uname -r) to:\n \n" $((9+${LIST_LENGHT})) 60 25 "${LIST[@]}" 2>&1 1>&3)
+                                exitstatus=$?;
+                                exec 3>&-
+				if [[ $exitstatus = 0 ]]; then
+	                        # install packages
+			        INSTALL_DTB=""
+			        [[ -n $(apt-cache search --names-only "^linux-dtb$TARGET_BRANCH-$LINUXFAMILY") ]] && INSTALL_DTB="linux-dtb$TARGET_BRANCH-$LINUXFAMILY=$TARGET_VERSION"
+			        debconf-apt-progress -- apt-get -y -qq --allow-downgrades --no-install-recommends install linux-image${TARGET_BRANCH}-${LINUXFAMILY}=$TARGET_VERSION $INSTALL_DTB
+			        dialog --title "Switching to $TARGET_VERSION" --backtitle "$BACKTITLE" --yes-label "Reboot"  --no-label "Cancel" --yesno "\nReboot to apply new settings?" 7 34
+		                if [[ $? = 0 ]]; then reboot; fi
+				fi
+
+			fi
+        fi
+}
+
+
+
+#
+# check if board has alternative kernels
+#
+function aval_kernel ()
+{
+
+	IFS=$'\r\n'
+	GLOBIGNORE='*'
+	 AVAL_KERNEL=($(apt-cache search --names-only '^linux-'$(lsb_release      -cs)'-root.*.'$BOARD'*' \
+        | grep -w "$BOARD " | sed 's/.*(\(.*\))/\1/' | awk '{print $1}' | grep -v "$BRANCH" ))
+	local LIST=()
+	for i in "${AVAL_KERNEL[@]}"
+	do
+		VALUE="${i[0]//[[:blank:]]/}"
+		DESC=$(kernel_desc $VALUE)
+		LIST+=( "$VALUE" "$DESC" )
+	done
+	LIST_LENGHT=$((${#LIST[@]}/2));
+	if [ "$LIST_LENGHT" -eq 0 ]; then
+			TARGET_BRANCH=${AVAL_KERNEL[0]}
+			dialog --backtitle "$BACKTITLE" --title " Info " --msgbox  "\nNo alternative kernels available!" 7 38
+	else
+			beta_disclaimer "Switching between kernels might change functionality of your board or it might fail to boot."
+			if [[ -n $ACKNOWLEDGEMENT ]]; then
+				exec 3>&1
+				TARGET_BRANCH=$(dialog --cancel-label "Cancel" --backtitle "$BACKTITLE" --no-collapse \
+				--title "Switch to alternative kernels" --clear --menu "\nSwitch from $(kernel_desc $BRANCH) to:\n \n" $((9+${LIST_LENGHT})) 60 25 "${LIST[@]}" 2>&1 1>&3)
+				exitstatus=$?;
+				exec 3>&-
+			fi
+	fi
+
+}
+
+
+
+
+#
+# check if board has alternative kernels
+#
+function aval_dtbs ()
+{
+
+	if [[ $LINUXFAMILY == cubox ]]; then
+	local width=80
+	LIST=("imx6dl-hummingboard.dtb" "HB Solo/DualLite" "imx6dl-hummingboard-emmc-som-v15.dtb" "HB Solo/DualLite v1.5 with eMMC" "imx6dl-hummingboard-som-v15.dtb" "HB Solo/DualLite v1.5" \
+	"imx6dl-hummingboard2.dtb" "HB2 Solo/DualLite" "imx6dl-hummingboard2-emmc-som-v15.dtb" "HB2 Solo/DualLite v1.5 with eMMC" "imx6dl-hummingboard2-som-v15.dtb" "HB2 Solo/DualLite v1.5" \
+	"imx6q-hummingboard.dtb" "HB Dual/Quad" "imx6q-hummingboard-emmc-som-v15.dtb" "HB Dual/Quad v1.5 with eMMC" "imx6q-hummingboard-som-v15.dtb" "HB Dual/Quad v1.5" \
+	"imx6q-hummingboard2.dtb" "HB2 Dual/Quad" "imx6q-hummingboard2-emmc-som-v15.dtb" "HB2 Dual/Quad v1.5 with eMMC" "imx6q-hummingboard2-som-v15.dtb" "HB2 Dual/Quad v1.5" \
+	"imx6dl-cubox-i.dtb" "Cubox-i Solo/DualLite" "imx6dl-cubox-i-emmc-som-v15.dtb" "Cubox-i Solo/DualLite v1.5 with eMMC" "imx6dl-cubox-i-som-v15.dtb" "Cubox-i Solo/DualLite v1.5" \
+	"imx6q-cubox-i.dtb" "Cubox-i Dual/Quad" "imx6q-cubox-i-emmc-som-v15.dtb" "Cubox-i Dual/Quad v1.5 with eMMC" "imx6q-cubox-i-som-v15.dtb" "Cubox-i Dual/Quad v1.5")
+	else
+	local width=52
+	LIST=("xu4" "Odroid XU4" "xu3" "Odroid XU3" "xu3l" "Odroid XU3 Lite" "hc1" "Odroid HC1/HC2")
+	fi
+
+	LIST_LENGHT=$((${#LIST[@]}/2));
+	if [ "$LIST_LENGHT" -eq 1 ]; then
+			TARGET_BOARD=${AVAL_KERNEL[0]}
+	else
+			exec 3>&1
+			TARGET_BOARD=$(dialog --cancel-label "Cancel" --backtitle "$BACKTITLE" --no-collapse \
+			--title "Select optimised board configuration" --clear --menu "" $((6+${LIST_LENGHT})) ${width} 25 "${LIST[@]}" 2>&1 1>&3)
+			exitstatus=$?;
+			exec 3>&-
+	fi
+
+}
+
+
+
+
+#
+# select video modes for a10 and a20
+#
+function get_a20modes ()
+{
+
+	IFS=$'\r'
+	GLOBIGNORE='*'
+	SCREEN_RESOLUTION=("1920x1080p60" "1280x720p60" "1920x1080p50" "1280x1024p60" "1024x768p60" "800x600p60" "640x480p60" "1360x768p60" "1440x900p60" "1680x1050p60")
+	local LIST=()
+	for i in "${SCREEN_RESOLUTION[@]}"
+	do
+			LIST+=( "${i[0]//[[:blank:]]/}" "" )
+	done
+	LIST_LENGHT=$((${#LIST[@]}/2));
+	#echo $LIST_LENGHT
+	#exit
+	if [ "$LIST_LENGHT" -eq 1 ]; then
+			SCREEN_RESOLUTION=${SCREEN_RESOLUTION[0]}
+	else
+			exec 3>&1
+			SCREEN_RESOLUTION=$(dialog --nocancel --backtitle "$BACKTITLE" --no-collapse \
+			--title "Select video mode" --clear --menu "" $((6+${LIST_LENGHT})) 25 $((1+${LIST_LENGHT})) "${LIST[@]}" 2>&1 1>&3)
+			exec 3>&-
+	fi
+
+}
+
+
+
+
+#
+# select video modes for odroid c1/c2
+#
+function get_odroidmodes ()
+{
+
+        IFS=$'\r\n'
+        GLOBIGNORE='*'
+        SCREEN_RESOLUTION=($(cat /boot/boot.ini | grep -w "# setenv" | grep "hz" | cut -d'"' -f 2))
+        local LIST=()
+        for i in "${SCREEN_RESOLUTION[@]}"
+        do
+                        LIST+=( "${i[0]//[[:blank:]]/}" "" )
+        done
+        LIST_LENGHT=$((${#LIST[@]}/2));
+        #echo $LIST_LENGHT
+        #exit
+        if [ "$LIST_LENGHT" -eq 1 ]; then
+                        SCREEN_RESOLUTION=${SCREEN_RESOLUTION[0]}
+        else
+                        exec 3>&1
+                        SCREEN_RESOLUTION=$(dialog --nocancel --backtitle "$BACKTITLE" --no-collapse \
+                        --title "Select video mode" --clear --menu "" $((6+${LIST_LENGHT})) 25 $((1+${LIST_LENGHT})) "${LIST[@]}" 2>&1 1>&3)
+                        exec 3>&-
+        fi
+
+}
+
+
+
+
+#
+# select video modes for h3
+#
+function get_h3modes ()
+{
+
+	IFS=$'\r\n'
+	GLOBIGNORE='*'
+	SCREEN_RESOLUTION=($(h3disp -i clean))
+	local LIST=()
+	for i in "${SCREEN_RESOLUTION[@]}"
+	do
+			LIST+=( "${i[0]//[[:blank:]]/}" "" )
+	done
+	LIST_LENGHT=$((${#LIST[@]}/2));
+	#echo $LIST_LENGHT
+	#exit
+	if [ "$LIST_LENGHT" -eq 1 ]; then
+			SCREEN_RESOLUTION=${SCREEN_RESOLUTION[0]}
+	else
+			exec 3>&1
+			SCREEN_RESOLUTION=$(dialog --nocancel --backtitle "$BACKTITLE" --no-collapse \
+			--title "Select video mode" --clear --menu "" $((6+${LIST_LENGHT})) 25 $((1+${LIST_LENGHT})) "${LIST[@]}" 2>&1 1>&3)
+			exec 3>&-
+	fi
+
+}
+
+
+
+
+#
+# create or pick unprivileged user
+#
+function add_choose_user ()
+{
+
+	IFS=$'\r\n'
+	GLOBIGNORE='*'
+
+	local USERS=($(awk -F'[/:]' '{if ($3 >= 1000 && $3 != 65534) print $1}' /etc/passwd))
+	local LIST=()
+	for i in "${USERS[@]}"
+	do
+			LIST+=( "${i[0]//[[:blank:]]/}" "" )
+	done
+	LIST_LENGHT=$((${#LIST[@]}/2));
+
+	if [ "$LIST_LENGHT" -eq 0 ]; then
+		dialog --backtitle "$BACKTITLE" --title " Notice " --msgbox "\nWe didn't find any unprivileged user with sudo rights which is required to run this service.\
+		\n\nPress enter to create one!" 10 48
+		read -t 0 temp
+		echo -e "\nPlease provide a username (eg. your forename) or leave blank for canceling user creation: \c"
+		read -e username
+		CHOSEN_USER="$(echo "$username" | tr '[:upper:]' '[:lower:]' | tr -d -c '[:alnum:]')"
+		[ -z "$CHOSEN_USER" ] && return
+		echo "Trying to add user $CHOSEN_USER"
+		adduser $CHOSEN_USER || return
+	elif [ "$LIST_LENGHT" -eq 1 ]; then
+			CHOSEN_USER=${USERS[0]}
+	else
+			exec 3>&1
+			CHOSEN_USER=$(dialog --nocancel --backtitle "$BACKTITLE" --no-collapse \
+			--title "Select unprivileged user" --clear --menu "" $((6+${LIST_LENGHT})) 40 15 "${LIST[@]}" 2>&1 1>&3)
+			exec 3>&-
+	fi
+
+}
+
+
+
+
+#
+# configure armbian desktop
+#
+function configure_desktop ()
+{
+
+	add_choose_user
+
+	if [ -n "$CHOSEN_USER" ]; then
+
+		# update packages
+		debconf-apt-progress -- apt-get update
+
+		# remove desktop package to secure proper install
+		if check_if_installed armbian-${DISTROID}-desktop ; then
+			debconf-apt-progress -- apt-get -y remove armbian-${DISTROID}-desktop
+		fi
+
+		# install desktop package
+		debconf-apt-progress -- apt-get -y install $1 armbian-${DISTROID}-desktop
+
+		# in case previous install was interrupted
+		[[ $? -eq 130 ]] && dpkg --configure -a
+
+		# strectch workaround
+		[[ ${DISTROID} == stretch ]] && debconf-apt-progress -- apt -y purge lightdm
+		# install display manager
+		DEBIAN_FRONTEND=noninteractive debconf-apt-progress -- apt-get -y -qq install nodm
+
+		# clean apt cache
+		apt-get clean
+
+		# add user to groups
+		for additionalgroup in sudo netdev audio video dialout plugdev input bluetooth systemd-journal ssh; do
+				usermod -aG ${additionalgroup} ${CHOSEN_USER} 2>/dev/null
+		done
+
+		# Prevent loading paralel printer port drivers which we don't need here.Suppress boot error if kernel modules are absent
+		if [[ -f /etc/modules-load.d/cups-filters.conf ]]; then
+			sed "s/^lp/#lp/" -i /etc/modules-load.d/cups-filters.conf
+			sed "s/^ppdev/#ppdev/" -i /etc/modules-load.d/cups-filters.conf
+			sed "s/^parport_pc/#parport_pc/" -i /etc/modules-load.d/cups-filters.conf
+		fi
+
+		# enable show windows content on stronger boards
+		cpu_cores=$(grep -c '^processor' /proc/cpuinfo | sed 's/^0$/1/')
+		if [[ ${cpu_cores} -gt 2 && -f /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml ]]; then
+			sed -i 's/<property name="box_move" type="bool" value=".*/<property name="box_move" type="bool" value="false"\/>/g' \
+			/etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml
+		fi
+
+		# fix for gksu in Xenial
+		touch /home/${CHOSEN_USER}/.Xauthority
+		cp -R /etc/skel/. /home/${CHOSEN_USER}
+
+		# set up profile sync daemon on desktop systems
+		which psd >/dev/null 2>&1
+		if [ $? -eq 0 ]; then
+			echo "${CHOSEN_USER} ALL=(ALL) NOPASSWD: /usr/bin/psd-overlay-helper" >> /etc/sudoers
+			touch /home/${CHOSEN_USER}/.activate_psd
+		fi
+
+		sed -i "s/NODM_USER=\(.*\)/NODM_USER=${CHOSEN_USER}/" /etc/default/nodm
+		sed -i "s/NODM_ENABLED=\(.*\)/NODM_ENABLED=true/g" /etc/default/nodm
+		chown -R ${CHOSEN_USER}:${CHOSEN_USER} /home/${CHOSEN_USER}/.
+		sleep 3
+		service nodm stop
+		sleep 1
+		service nodm start
+	fi
+
+}

@@ -1,0 +1,1 @@
+../../js/extras/jquery.tablesorter.pager.js

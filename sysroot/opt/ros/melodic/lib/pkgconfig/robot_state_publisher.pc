@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: robot_state_publisher
+Description: Description of robot_state_publisher
+Version: 1.13.6
+Cflags: -I/opt/ros/melodic/include -I/opt/ros/melodic/share/orocos_kdl/cmake/../../../include -I/usr/include/eigen3 -I/usr/include
+Libs: -L/opt/ros/melodic/lib -lrobot_state_publisher_solver /opt/ros/melodic/lib/liborocos-kdl.so.1.4.0
+Requires: roscpp rosconsole rostime tf2_ros tf2_kdl kdl_parser

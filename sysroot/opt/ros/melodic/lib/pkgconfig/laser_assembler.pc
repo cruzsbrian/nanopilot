@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: laser_assembler
+Description: Description of laser_assembler
+Version: 1.7.5
+Cflags: -I/opt/ros/melodic/include
+Libs: -L/opt/ros/melodic/lib 
+Requires: tf sensor_msgs message_filters roscpp laser_geometry filters message_runtime

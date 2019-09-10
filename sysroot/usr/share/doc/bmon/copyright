@@ -1,0 +1,42 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: bmon
+Upstream-Contact: Thomas Graf <tgraf@suug.ch>
+Source: https://github.com/tgraf/bmon
+Comment:
+ This package was debianized by Reto Schuettel <reto@schuettel.ch>
+ on Tue, 21 Dec 2004 17:09:06 +0100.
+
+Files: *
+Copyright: 2001-2016 Thomas Graf <tgraf@suug.ch>
+           2013      Red Hat, Inc.
+           2014      Žilvinas Valinskas <zilvinas.valinskas@gmail.com>
+License: Expat
+
+Files: debian/*
+Copyright: 2017 Patrick Matthäi <pmatthaei@debian.org>
+		   2012-2016 Dmitry Smirnov <onlyjob@debian.org>
+           2004-2005 Reto Schuettel <reto@schuettel.ch>
+License:  Expat
+
+License:  Expat
+ Permission is hereby granted, free of charge, to any person obtaining a
+ copy of this software and associated documentation files (the "Software"),
+ to deal in the Software without restriction, including without limitation
+ the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ and/or sell copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
+Comment:
+ This license also known as "MIT" however FSF consider "MIT" labelling
+ ambiguous and copyright-format specification recommend to label such license
+ as "Expat".

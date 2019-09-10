@@ -1,0 +1,12 @@
+prefix=/usr
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include/ignition/common1
+
+Name: Ignition common
+Description: A set of common classes for robot applications
+Version: 1.0.1
+Requires: ignition-math4 uuid gts libswscale libavdevice >= 56.4.100 libavformat libavcodec libavutil
+Requires.private: tinyxml2
+Libs: -L${libdir} -lignition-common1 
+Libs.private: -ldl
+CFlags: -I${includedir} 

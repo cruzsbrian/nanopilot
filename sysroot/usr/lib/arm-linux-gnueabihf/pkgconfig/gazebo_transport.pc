@@ -1,0 +1,10 @@
+prefix=/usr
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include
+
+Name: gazebo_transport
+Description: Gazebo Transport Library
+Version: 9.0.0
+Requires:
+Libs: -L${libdir} -lgazebo_transport -lgazebo_msgs 
+CFlags: -I${includedir}/gazebo-9

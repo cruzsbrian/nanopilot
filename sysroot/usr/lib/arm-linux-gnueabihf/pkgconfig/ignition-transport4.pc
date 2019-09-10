@@ -1,0 +1,12 @@
+prefix=/usr
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include/ignition/transport4
+
+Name: Ignition transport
+Description: A set of transport classes for robot applications
+Version: 4.0.0
+Requires: protobuf >= 2.3.0 uuid ignition-msgs1
+Requires.private: libzmq >= 4
+Libs: -L${libdir} -lignition-transport4 
+Libs.private:
+CFlags: -I${includedir}  -std=c++14

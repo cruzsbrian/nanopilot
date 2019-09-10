@@ -1,0 +1,12 @@
+prefix=/usr
+exec_prefix=/usr
+libdir=/build/ogdi-dfsg-iZWIlz/ogdi-dfsg-3.2.0+ds/debian/tmp/usr/lib
+includedir=${prefix}/include
+
+Name: ogdi
+Description: Open Geographic Datastore Interface
+Version: 3.2.0
+Cflags: -I${includedir}/ogdi
+Libs: -L${libdir} -logdi
+Libs.private: -lproj -lexpat -lz
+

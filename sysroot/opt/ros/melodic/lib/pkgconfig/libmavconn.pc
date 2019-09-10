@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: libmavconn
+Description: Description of libmavconn
+Version: 0.29.2
+Cflags: -I/opt/ros/melodic/include -I/usr/include
+Libs: -L/opt/ros/melodic/lib -lmavconn /usr/lib/arm-linux-gnueabihf/libboost_system.so /usr/lib/arm-linux-gnueabihf/libconsole_bridge.so.0.4
+Requires: 

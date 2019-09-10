@@ -1,0 +1,13 @@
+prefix=/usr
+exec_prefix=/usr
+libdir=/usr/lib/arm-linux-gnueabihf
+includedir=/usr/include
+ccompiler=/usr/bin/cc
+
+Name: netCDF
+Description: NetCDF Client Library for C
+URL: http://www.unidata.ucar.edu/netcdf
+Version: 4.6.0
+Libs: -L${libdir} -L/usr/lib/arm-linux-gnueabihf/hdf5/serial -lnetcdf -lhdf5_hl -lhdf5 -lpthread -lsz -lz -ldl -lm -lcurl
+Cflags: -I${includedir} -I/usr/include/hdf5/serial
+

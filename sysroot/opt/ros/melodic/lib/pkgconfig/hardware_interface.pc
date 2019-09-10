@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: hardware_interface
+Description: Description of hardware_interface
+Version: 0.15.1
+Cflags: -I/opt/ros/melodic/include
+Libs: -L/opt/ros/melodic/lib 
+Requires: roscpp

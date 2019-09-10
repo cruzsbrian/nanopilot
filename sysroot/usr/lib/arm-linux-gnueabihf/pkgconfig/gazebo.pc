@@ -1,0 +1,10 @@
+prefix=/usr
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include
+
+Name: gazebo
+Description: Gazebo Libraries
+Version: 9.0.0
+Requires: sdformat protobuf tbb ignition-math4 ignition-msgs1 ignition-transport4 ignition-fuel_tools1
+Libs: -Wl,-rpath,${prefix}/lib/arm-linux-gnueabihf/gazebo-9/plugins -L${libdir} -L${prefix}/lib/arm-linux-gnueabihf/gazebo-9/plugins -lgazebo_transport -lgazebo_physics -lgazebo_sensors -lgazebo_rendering -lgazebo_gui -lgazebo_client -lgazebo_msgs -lgazebo_common -lgazebo -L/usr/lib/arm-linux-gnueabihf -lboost_thread -lboost_signals -lboost_system -lboost_filesystem -lboost_program_options -lboost_regex -lboost_iostreams -lboost_date_time -lboost_chrono -lboost_atomic -lpthread 
+CFlags: -I${includedir}/gazebo-9 -I/usr/include -std=c++11

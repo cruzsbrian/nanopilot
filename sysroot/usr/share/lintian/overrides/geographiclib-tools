@@ -1,0 +1,3 @@
+# Tools expect data in this directory, but no data is installed by the package
+geographiclib-tools: package-contains-empty-directory usr/share/GeographicLib/
+

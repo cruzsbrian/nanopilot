@@ -1,0 +1,31 @@
+geographiclib for Debian
+------------------------
+
+This package does not install required files for computing geoid height approximations.
+You have to download them explicitly by using the provided 
+/usr/sbin/geographiclib-get-* script. Possible datasets at different 
+resolutions are:
+
+    * EGM84, 30' grid
+    * EGM84, 15' grid
+    * EGM96, 15' grid
+    * EGM96, 5' grid
+    * EGM2008, 5' grid
+    * EGM2008, 2.5' grid
+    * EGM2008, 1' grid
+
+The default grid model is EGM96 at 5', so you should at least run once 
+geographiclib-datasets-download to get it.
+
+ -- Francesco Paolo Lovergine <frankie@debian.org>  Wed, 10 Mar 2010 15:36:44 +0100
+
+Version 1.38 of geographiclib introduces an incompatible ABI change for
+the amd64 architecture without bumping the SONAME. This change is limited
+to one symbol for the amd64 architecture, and the same symbol that was
+removed on other architectures at the last release (1.37). As there are
+no reverse dependencies for geographiclib yet, and it is not mandatory
+to change the SONAME & package name according to Debian policy (3.9.6),
+the SONAME has not been bumped.
+
+ -- Ross Gammon <rossgammon@mail.dk>  Tue, 4 Nov 2014 21:27:00 +0100
+
