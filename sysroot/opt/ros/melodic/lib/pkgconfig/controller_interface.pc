@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: controller_interface
+Description: Description of controller_interface
+Version: 0.15.1
+Cflags: -I/opt/ros/melodic/include
+Libs: -L/opt/ros/melodic/lib 
+Requires: roscpp hardware_interface pluginlib

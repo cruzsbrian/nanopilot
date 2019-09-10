@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: image_view
+Description: Description of image_view
+Version: 1.12.23
+Cflags: -I/opt/ros/melodic/include
+Libs: -L/opt/ros/melodic/lib 
+Requires: dynamic_reconfigure

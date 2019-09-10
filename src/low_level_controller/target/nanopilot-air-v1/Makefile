@@ -171,7 +171,7 @@ INCDIR = $(CHIBIOS)/os/license \
 MCU  = cortex-m4
 
 #TRGT = arm-elf-
-TRGT = arm-none-eabi-
+TRGT = /home/brian/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.

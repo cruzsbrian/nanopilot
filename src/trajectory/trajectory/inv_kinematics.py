@@ -19,7 +19,7 @@ def generate_trajectory(step_length, step_radius, step_height, small_step_height
 
     # Generate left trajectory: Swing, Shift, Stop, Shift
     if (left):
-        # Swing 
+        # Swing
         traj += generate_small_step(small_step_height, -step_length, 0.0, z_offset, step_num)
         traj += generate_ellipse(step_length, step_radius, step_height, 0.0, 0.0, z_offset + small_step_height, ellipse_num)[::-1]
         traj += generate_small_step(small_step_height, step_length, 0.0, z_offset, step_num)[::-1]
@@ -35,19 +35,19 @@ def generate_trajectory(step_length, step_radius, step_height, small_step_height
 
 
     # Generate right trajectory: Stop, Shift, Swing, Shift
-    else:   
-        # Stop 
+    else:
+        # Stop
         traj += (generate_stop(0.0, 0.0, z_offset, ellipse_num))
 
-        # Shift Back 
+        # Shift Back
         traj += generate_straight_path(step_length, -step_length, 0.0, z_offset, straight_num)[::-1]
 
-        # Swing 
+        # Swing
         traj += generate_small_step(small_step_height, -step_length, 0.0, z_offset, step_num)
         traj += generate_ellipse(step_length, step_radius, step_height, 0.0, 0.0, z_offset + small_step_height, ellipse_num)[::-1]
         traj += generate_small_step(small_step_height, step_length, 0.0, z_offset, step_num)[::-1]
 
-        # Shift Back 
+        # Shift Back
         traj += generate_straight_path(step_length, 0.0, 0.0, z_offset, straight_num)[::-1]
 
     return traj
@@ -70,9 +70,9 @@ def generate_small_step(small_step_height, x_offset, y_offset, z_offset, num_p):
     return traj
 
 def generate_ellipse(step_length, step_radius, step_height, x_offset, y_offset, z_offset, num_p):
-    a = step_radius  
-    b = step_length  
-    c = step_height  
+    a = step_radius
+    b = step_length
+    c = step_height
 
     v = np.arctan(c/a)
 
@@ -82,11 +82,11 @@ def generate_ellipse(step_length, step_radius, step_height, x_offset, y_offset, 
 
         x_0 = b*np.cos(trapezoidal_function(i, num_p, pi))
         y_0 = np.sqrt(a**2+c**2)*np.sin(trapezoidal_function(i, num_p, pi))
-        
+
         x = x_0
-        y = y_0*np.cos(v) 
+        y = y_0*np.cos(v)
         z = y_0*np.sin(v)
-        
+
         traj.append([x + x_offset, y + y_offset, z + z_offset])
 
     return traj
@@ -128,7 +128,7 @@ def forward(r, d, l1, l2, l3, l4, l5, l6, l7, theta1, theta2, theta3):
                  (r*sin(theta3) + (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*cos(theta3)), \
                  (r*cos(theta3) - (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*sin(theta3))])) - \
          (Matrix([(-d/2) - l4*sin(theta2), r*sin(theta3) - l4*cos(theta2)*cos(theta3), r*cos(theta3) + l4*cos(theta2)*sin(theta3)]))))
-    
+
     #return [N(J8[0]), N(J8[1]), N(J8[2])]
     return [N(J8[0]), N(J8[2]), -N(J8[1])]
 
@@ -139,12 +139,12 @@ def inverse_init(r, d, l1, l2, l3, l4, l5, l6, l7):
 
 	return (init, expr)
 
-def inverse(r, d, l1, l2, l3, l4, l5, l6, l7, x, y, z, init, expr): 
+def inverse(r, d, l1, l2, l3, l4, l5, l6, l7, x, y, z, init, expr):
     def norm(params):
         theta1, theta2, theta3 = params
         sol = expr(theta1, theta2, theta3)
         return ((sol[0]-x)**2 + (sol[1]-y)**2 + (sol[2]-z)**2)
-    
+
     inv = scipy.optimize.minimize(norm, init, bounds=((0, pi),(0, pi),(-pi/2, pi/2)))
     angles = inv.get('x')
     return [angles[0], angles[1], angles[2]]
@@ -156,9 +156,9 @@ class Inverse_Kinematics(Node):
 		# the name of the channel/topic is 'hip_actuators' and contains theta1, theta2, theta3; message type is ActuatorPositions
 		self.publisher = self.create_publisher(ActuatorPositions, 'hip_actuator_positions')
 
-		self.timer = self.create_timer(0.01, self.timer_callback)
+		self.timer = self.create_timer(0.001, self.timer_callback)
 		self.i = 0
-	
+
 
 	def timer_callback(self):
 		# msg2 is hip actuator angles, type ActuatorPositions of dim 1x3
@@ -177,7 +177,7 @@ class Inverse_Kinematics(Node):
 		l7 = 11 - 1.5875
 
 		# ------------------------------------------------- Inverse Kinematics Onboard --------------------------------------------------
-		# Generate Trajectories 
+		# Generate Trajectories
 		# foot_pos_L = np.array(generate_trajectory(14, 12, 8, 2, -45, 100, 20, 10, 1))
 		# foot_pos_L[:,2] = -foot_pos_L[:,2]
 
@@ -188,7 +188,7 @@ class Inverse_Kinematics(Node):
 
 		# (xR, yR, zR) = (foot_pos_R[i][0], foot_pos_R[i][1], foot_pos_R[i][2])
 
-		# # Inverse Kinematics 
+		# # Inverse Kinematics
 		# (init, expr) = inverse_init(r, d, l1, l2, l3, l4, l5, l6, l7)
 
 		# (theta1L, theta2L, theta3L) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xL, yL, zL, init, expr)
@@ -203,17 +203,17 @@ class Inverse_Kinematics(Node):
 		# for line in file:
 		# 	arr = line.split()
 		# 	traj.append([float(x) for x in arr])
-			
+
 		# file.close()
-		
+
 		# (theta1L, theta2L, theta3L) = (traj[i][0], traj[i][1], traj[i][2])
 		# (theta1R, theta2R, theta3R) = (traj[i][3], traj[i][4], traj[i][5])
 
 		# ---------------------------------------------------- Setting to Constant ------------------------------------------------------
 
-		(theta1L, theta2L, theta3L) = (0.6692760219102517, 1.2838199251955245, -0.24205269818052721) #(0.308, 1.458, 0.0)
-		(theta1R, theta2R, theta3R) = (1.176006290492997, 1.516668501103407, -0.010734436737577695) #(0.308, 1.458, 0.0)
-		
+		(theta1L, theta2L, theta3L) = (0.308, 1.458, 0.0)
+		(theta1R, theta2R, theta3R) = (0.308, 1.458, 0.0)
+
 		# Port 1: Left Front
 		# Port 2: Left Rear
 		# Port 3: Right Front
@@ -227,7 +227,7 @@ class Inverse_Kinematics(Node):
 		self.publisher.publish(msg)
 
 		# foot_pos_L = traj
-		# self.i = (self.i + 1) % len(foot_pos_L); 
+		# self.i = (self.i + 1) % len(foot_pos_L);
 
 def main (args=None):
 	rclpy.init(args=args)

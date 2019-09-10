@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+exec_prefix=/opt/ros/melodic
+includedir=${prefix}/include
+
+Name: mavlink
+Description: MAVLink micro air vehicle marshalling / communication library
+Version: 2019.4.4
+Cflags: -I${includedir}

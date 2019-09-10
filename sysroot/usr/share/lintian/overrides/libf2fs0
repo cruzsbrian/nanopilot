@@ -1,0 +1,4 @@
+# Policy 8.1: If you have several shared libraries built from the same source
+# tree, you may lump them all together into a single shared library package
+# provided that all of their SONAMEs will always change together. 
+libf2fs0: package-name-doesnt-match-sonames

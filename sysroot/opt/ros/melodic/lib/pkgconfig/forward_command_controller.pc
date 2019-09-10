@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: forward_command_controller
+Description: Description of forward_command_controller
+Version: 0.14.2
+Cflags: -I/opt/ros/melodic/include
+Libs: -L/opt/ros/melodic/lib 
+Requires: controller_interface hardware_interface std_msgs realtime_tools

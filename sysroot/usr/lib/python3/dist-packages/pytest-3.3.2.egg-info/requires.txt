@@ -1,0 +1,6 @@
+
+[:python_version<"3.0"]
+funcsigs
+
+[:sys_platform=="win32"]
+colorama

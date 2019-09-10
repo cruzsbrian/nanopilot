@@ -1,0 +1,10 @@
+prefix=/usr
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include
+
+Name: gazebo
+Description: Gazebo Exported ODE Libraries
+Version: 9.0.0
+Requires:
+Libs: -Wl,-rpath,${prefix}/lib/arm-linux-gnueabihf -L${prefix}/lib/arm-linux-gnueabihf -lgazebo_ode
+CFlags: -I${includedir}/gazebo-9

@@ -1,0 +1,9 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: lark-parser
+Upstream-Contact: https://gitter.im/lark-parser/Lobby
+Source: https://github.com/lark-parser/lark
+
+Files: *
+License: MIT
+ On Debian systems the full text of the Apache License can be found
+ in the `/usr/share/common-licenses/MIT'

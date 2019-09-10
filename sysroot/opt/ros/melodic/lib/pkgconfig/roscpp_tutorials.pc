@@ -1,0 +1,8 @@
+prefix=/opt/ros/melodic
+
+Name: roscpp_tutorials
+Description: Description of roscpp_tutorials
+Version: 0.9.0
+Cflags: -I/opt/ros/melodic/include
+Libs: -L/opt/ros/melodic/lib 
+Requires: message_runtime std_msgs

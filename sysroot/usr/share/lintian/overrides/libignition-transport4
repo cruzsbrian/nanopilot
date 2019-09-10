@@ -1,0 +1,4 @@
+# The msgs library is not useful without the ignition-transport lib
+# so does not make sense to package it separately. Upstream is not
+# using 0 for the main library, just plain name.
+libignition-transport4: package-name-doesnt-match-sonames libignition-transport4-4

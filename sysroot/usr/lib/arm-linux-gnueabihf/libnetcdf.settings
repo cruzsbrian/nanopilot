@@ -1,0 +1,36 @@
+# NetCDF C Configuration Summary
+==============================
+
+# General
+-------
+NetCDF Version:		4.6.0
+Build Directory: 	/build/netcdf-ozSnJM/netcdf-4.6.0/obj-arm-linux-gnueabihf
+Install Prefix:         /usr
+
+# Compiling Options
+-----------------
+C Compiler:		/usr/bin/cc
+CFLAGS:			-g -O2 -fdebug-prefix-map=/build/netcdf-ozSnJM/netcdf-4.6.0=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 
+CPPFLAGS:		 
+LDFLAGS:		-Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,-z,now 
+AM_CFLAGS:		
+AM_CPPFLAGS:		
+AM_LDFLAGS:		
+Shared Library:		yes
+Static Library:		no
+Extra libraries:	-lhdf5_hl -lhdf5 -lpthread -lsz -lz -ldl -lm -lcurl
+
+# Features
+--------
+NetCDF-2 API:		yes
+HDF4 Support:		no
+NetCDF-4 API:		yes
+NC-4 Parallel Support:	no
+PNetCDF Support:	no
+DAP2 Support:		yes
+DAP4 Support:		yes
+Diskless Support:	yes
+MMap Support:		yes
+JNA Support:		no
+CDF5 Support:		no
+ERANGE fill Support:	no

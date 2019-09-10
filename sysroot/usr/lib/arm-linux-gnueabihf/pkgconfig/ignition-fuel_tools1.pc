@@ -1,0 +1,12 @@
+prefix=/usr
+libdir=${prefix}/lib/arm-linux-gnueabihf
+includedir=${prefix}/include/ignition/fuel_tools1
+
+Name: Ignition fuel_tools
+Description: A set of fuel_tools classes for robot applications
+Version: 1.0.0
+Requires:
+Requires.private: libcurl >=  jsoncpp yaml-0.1 libzip ignition-common1
+Libs: -L${libdir} -lignition-fuel_tools1 
+Libs.private:
+CFlags: -I${includedir}  -std=c++11

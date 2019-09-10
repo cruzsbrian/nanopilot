@@ -1,0 +1,8 @@
+ogdi-dfsg for Debian
+--------------------
+
+The original tarball has been stripped of all non-free/doubtable code (mainly win32 concerning).
+Currently only shared library are built due to some limitation in the building system
+which is quite annoying to be properly fixed.
+
+ -- Francesco Paolo Lovergine <frankie@debian.org>  Tue,  6 Mar 2007 15:56:15 +0100

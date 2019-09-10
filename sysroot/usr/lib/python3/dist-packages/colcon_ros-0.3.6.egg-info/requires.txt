@@ -1,0 +1,5 @@
+colcon-cmake>=0.2.5
+colcon-core>=0.3.10
+colcon-pkg-config
+colcon-python-setup-py
+colcon-recursive-crawl

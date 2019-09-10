@@ -2,6 +2,7 @@
 #include "hal.h"
 #include <chprintf.h>
 #include <string.h>
+#include <cmath>
 #include <arm-cortex-tools/mpu.h>
 #include <arm-cortex-tools/fault.h>
 #include "panic_handler.h"
@@ -125,7 +126,7 @@ public:
         float error_rate_rpy[3];
         int i;
         for (i = 0; i < 3; i++){
-            error_rate_rpy[i] = rate_setpoint_rpy[i] - rate_measured_rpy[i];
+            error_rate_rpy[i] = rate_measured_rpy[i] - rate_setpoint_rpy[i];
         }
         rate_ctrl_output_rpy[0] = pid_roll_controller.process(error_rate_rpy[0]);
         rate_ctrl_output_rpy[1] = pid_pitch_controller.process(error_rate_rpy[1]);
@@ -194,7 +195,7 @@ class LinearOutputMixer: public OutputMixer {
             for (int axis=0; axis < 3; axis++) {
                 parameter_vector_read(&m_rpy_ctrl_mix[axis], coeff.data());
                 for (int i = 0; i < NB_ACTUATORS; i++) {
-                    output[i] += coeff[i] * ap_ctrl.feed_forward_torque_rpy[axis];
+                    output[i] += std::sqrt(coeff[i] * ap_ctrl.feed_forward_torque_rpy[axis]);
                 }
             }
 
