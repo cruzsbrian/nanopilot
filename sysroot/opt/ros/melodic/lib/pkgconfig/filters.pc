@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: filters
-Description: Description of filters
-Version: 1.8.1
-Cflags: -I/opt/ros/melodic/include
-Libs: -L/opt/ros/melodic/lib -lmean -lparams -lincrement -lmedian -ltransfer_function
-Requires: roslib roscpp rosconsole pluginlib

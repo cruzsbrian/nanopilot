@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: rosservice
-Description: Description of rosservice
-Version: 1.14.3
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

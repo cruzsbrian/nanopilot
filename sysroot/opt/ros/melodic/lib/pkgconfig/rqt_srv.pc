@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: rqt_srv
-Description: Description of rqt_srv
-Version: 0.4.8
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

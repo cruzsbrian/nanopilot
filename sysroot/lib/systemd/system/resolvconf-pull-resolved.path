@@ -1,7 +1,0 @@
-[Path]
-PathChanged=/run/systemd/resolve/stub-resolv.conf
-PathExists=/run/systemd/resolve/stub-resolv.conf
-
-[Install]
-WantedBy=systemd-resolved.service
-

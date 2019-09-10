@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: laser_geometry
-Description: Description of laser_geometry
-Version: 1.6.4
-Cflags: -I/opt/ros/melodic/include -I/usr/include -I/usr/include/eigen3
-Libs: -L/opt/ros/melodic/lib -llaser_geometry /usr/lib/arm-linux-gnueabihf/libboost_system.so /usr/lib/arm-linux-gnueabihf/libboost_thread.so /usr/lib/arm-linux-gnueabihf/libboost_chrono.so /usr/lib/arm-linux-gnueabihf/libboost_date_time.so /usr/lib/arm-linux-gnueabihf/libboost_atomic.so /usr/lib/arm-linux-gnueabihf/libpthread.so
-Requires: 

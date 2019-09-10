@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: rqt_shell
-Description: Description of rqt_shell
-Version: 0.4.9
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

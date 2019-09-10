@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: image_rotate
-Description: Description of image_rotate
-Version: 1.12.23
-Cflags: -I/opt/ros/melodic/include
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

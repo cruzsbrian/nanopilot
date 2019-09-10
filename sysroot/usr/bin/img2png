@@ -1,5 +1,0 @@
-#! /usr/bin/python2
-
-from wx.tools.img2png import main
-main()
-

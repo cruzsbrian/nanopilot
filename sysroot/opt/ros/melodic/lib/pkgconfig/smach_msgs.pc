@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: smach_msgs
-Description: Description of smach_msgs
-Version: 2.0.1
-Cflags: -I/opt/ros/melodic/include
-Libs: -L/opt/ros/melodic/lib 
-Requires: message_runtime

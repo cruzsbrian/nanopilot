@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: turtle_actionlib
-Description: Description of turtle_actionlib
-Version: 0.1.11
-Cflags: -I/opt/ros/melodic/include
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

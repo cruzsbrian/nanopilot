@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: rqt_reconfigure
-Description: Description of rqt_reconfigure
-Version: 0.4.10
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

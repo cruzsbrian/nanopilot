@@ -1,3 +1,0 @@
-# zero is already included in the name of the package and in the library 
-# filename. Upstream follows semantic versioning, don't need to set it twice.
-libignition-msgs: package-name-doesnt-match-sonames libignition-msgs1-1

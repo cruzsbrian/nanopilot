@@ -1,3 +1,0 @@
-# This file does not contain license information.  Lintian is probably
-# confused because of the name of the file.
-cppcheck: extra-license-file usr/share/cppcheck/cfg/bsd.cfg

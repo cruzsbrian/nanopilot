@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: rosclean
-Description: Description of rosclean
-Version: 1.14.4
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

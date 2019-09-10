@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: joint_limits_interface
-Description: Description of joint_limits_interface
-Version: 0.15.1
-Cflags: -I/opt/ros/melodic/include -I/usr/include
-Libs: -L/opt/ros/melodic/lib /usr/lib/arm-linux-gnueabihf/liburdfdom_sensor.so /usr/lib/arm-linux-gnueabihf/liburdfdom_model_state.so /usr/lib/arm-linux-gnueabihf/liburdfdom_model.so /usr/lib/arm-linux-gnueabihf/liburdfdom_world.so /usr/lib/arm-linux-gnueabihf/libconsole_bridge.so.0.4
-Requires: hardware_interface roscpp urdf

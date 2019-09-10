@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: interactive_markers
-Description: Description of interactive_markers
-Version: 1.11.4
-Cflags: -I/opt/ros/melodic/include
-Libs: -L/opt/ros/melodic/lib -linteractive_markers
-Requires: roscpp rosconsole rospy tf visualization_msgs

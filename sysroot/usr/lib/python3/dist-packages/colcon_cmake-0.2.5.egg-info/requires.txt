@@ -1,2 +1,0 @@
-colcon-core
-colcon-library-path

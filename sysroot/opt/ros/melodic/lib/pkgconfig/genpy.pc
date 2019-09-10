@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: genpy
-Description: Description of genpy
-Version: 0.6.7
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: genmsg

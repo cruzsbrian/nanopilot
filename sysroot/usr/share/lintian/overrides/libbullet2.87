@@ -1,3 +1,0 @@
-# We install all Bullet libraries into one binary package and no longer into
-# separate ones.
-package-name-doesnt-match-sonames

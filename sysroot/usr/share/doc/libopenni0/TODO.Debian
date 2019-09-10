@@ -1,3 +1,0 @@
-Fix:
-E: openni source: missing-build-dependency quilt
-W: openni-doc: embedded-javascript-library usr/share/doc/openni-unstable-doc/html/jquery.js

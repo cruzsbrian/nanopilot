@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: qt_gui_py_common
-Description: Description of qt_gui_py_common
-Version: 0.3.11
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

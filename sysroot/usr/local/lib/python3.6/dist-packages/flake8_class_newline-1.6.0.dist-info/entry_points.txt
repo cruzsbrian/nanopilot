@@ -1,3 +1,0 @@
-[flake8.extension]
-CNL100 = flake8_class_newline:new_line_checker
-

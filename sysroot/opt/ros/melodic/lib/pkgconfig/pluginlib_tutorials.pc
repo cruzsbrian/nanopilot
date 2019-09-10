@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: pluginlib_tutorials
-Description: Description of pluginlib_tutorials
-Version: 0.1.11
-Cflags: -I/opt/ros/melodic/include -I/usr/include
-Libs: -L/opt/ros/melodic/lib -lpluginlib_tutorials
-Requires: pluginlib roscpp

@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: control_toolbox
-Description: Description of control_toolbox
-Version: 1.16.0
-Cflags: -I/opt/ros/melodic/include -I/usr/include
-Libs: -L/opt/ros/melodic/lib -lcontrol_toolbox /usr/lib/arm-linux-gnueabihf/libtinyxml.so
-Requires: control_msgs dynamic_reconfigure message_runtime realtime_tools roscpp std_msgs

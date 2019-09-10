@@ -1,6 +1,0 @@
-#define TEST_INTEGRATION_PATH "/build/gazebo-nR78Uv/gazebo-9.0.0+dfsg5/test/integration"
-#define TEST_REGRESSION_PATH "/build/gazebo-nR78Uv/gazebo-9.0.0+dfsg5/test/regression"
-#define TEST_UNIT_PATH "/build/gazebo-nR78Uv/gazebo-9.0.0+dfsg5/test/unit"
-#define TEST_PATH "/build/gazebo-nR78Uv/gazebo-9.0.0+dfsg5/test"
-#define PROJECT_SOURCE_PATH "/build/gazebo-nR78Uv/gazebo-9.0.0+dfsg5"
-#define PROJECT_BINARY_PATH "/build/gazebo-nR78Uv/gazebo-9.0.0+dfsg5/obj-arm-linux-gnueabihf"

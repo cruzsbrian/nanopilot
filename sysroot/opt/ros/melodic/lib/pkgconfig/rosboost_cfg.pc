@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: rosboost_cfg
-Description: Description of rosboost_cfg
-Version: 1.14.4
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

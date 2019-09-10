@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: kdl_parser
-Description: Description of kdl_parser
-Version: 1.13.1
-Cflags: -I/opt/ros/melodic/include -I/opt/ros/melodic/share/orocos_kdl/cmake/../../../include -I/usr/include/eigen3 -I/usr/include
-Libs: -L/opt/ros/melodic/lib -lkdl_parser /opt/ros/melodic/lib/liborocos-kdl.so.1.4.0 /usr/lib/arm-linux-gnueabihf/libtinyxml.so /usr/lib/arm-linux-gnueabihf/libtinyxml2.so
-Requires: rosconsole urdf

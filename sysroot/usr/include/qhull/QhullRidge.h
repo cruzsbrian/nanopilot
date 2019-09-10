@@ -1,1 +1,0 @@
-../libqhullcpp/QhullRidge.h

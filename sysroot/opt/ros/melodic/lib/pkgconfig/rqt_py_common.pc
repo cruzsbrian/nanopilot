@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: rqt_py_common
-Description: Description of rqt_py_common
-Version: 0.5.0
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 

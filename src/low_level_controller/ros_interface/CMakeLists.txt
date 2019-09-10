@@ -34,4 +34,9 @@ ament_target_dependencies(llc_ros_interface rclcpp std_msgs sensor_msgs geometry
 install(TARGETS llc_ros_interface
   DESTINATION lib/${PROJECT_NAME})
 
+
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME})
+
 ament_package()

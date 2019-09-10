@@ -1,8 +1,0 @@
-prefix=/opt/ros/melodic
-
-Name: librviz_tutorial
-Description: Description of librviz_tutorial
-Version: 0.10.3
-Cflags: 
-Libs: -L/opt/ros/melodic/lib 
-Requires: 
