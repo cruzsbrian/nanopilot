@@ -83,7 +83,6 @@ private:
 
         ctrl_msg.feed_forward_torque.x = torque_kf * sin(att_error_vec[0]);
         ctrl_msg.feed_forward_torque.y = torque_kf * sin(att_error_vec[1]);
-        ctrl_msg.feed_forward_torque.z = torque_kf * sin(att_error_vec[2]);
 
         Eigen::Vector3d rate_setpt = -K.cwiseProduct(att_error_vec);
         rate_setpt = rate_setpt.cwiseMin(max_rate_setpt).cwiseMax(-max_rate_setpt);
