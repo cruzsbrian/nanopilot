@@ -10,7 +10,7 @@ parser.add_argument("binary", help="Compiled program (ELF format)")
 
 args = parser.parse_args()
 
-command = "arm-none-eabi-nm --numeric-sort --print-size {}".format(args.binary).split()
+command = "/home/brian/gcc-arm-none-eabi-7-2018-q2-update/bin/arm-none-eabi-nm --numeric-sort --print-size {}".format(args.binary).split()
 result = subprocess.check_output(command).decode().splitlines()
 
 heap_base = [s for s in result if "__heap_base__" in s][-1]

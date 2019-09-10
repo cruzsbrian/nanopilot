@@ -79,6 +79,10 @@ class AttitudeCtrl : public rclcpp::Node
                 pose_msg->pose.orientation.y,
                 pose_msg->pose.orientation.z);
 
+        // Make sure we are given unit quaternions.
+        setpt_body_to_nav.normalize();
+        estimate_body_to_nav.normalize();
+
         Eigen::Matrix<double, 3, 3> body_to_nav_mat = estimate_body_to_nav.toRotationMatrix();
 
         // Find the gravity vector in the robot's frame.
@@ -96,7 +100,7 @@ class AttitudeCtrl : public rclcpp::Node
         // Quaternions double cover the rotation space, so we restrict it to w > 0.
         // att_error and -att_error represent the same orientation.
         if (att_error.w() < 0) {
-            att_error *= -1;
+            att_error.coeffs() *= -1;
         }
 
         // This gives a rotation vector whose direction is the axis of rotation
@@ -108,8 +112,8 @@ class AttitudeCtrl : public rclcpp::Node
         rate_setpt = rate_setpt.cwiseMin(max_rate_setpt).cwiseMax(-max_rate_setpt);
 
         ctrl_msg.header.stamp = pose_msg->header.stamp;
-        ctrl_msg.feed_forward_torque.x = gravity_torque_body[0];
-        ctrl_msg.feed_forward_torque.y = gravity_torque_body[1];
+        ctrl_msg.feed_forward_torque.x = -gravity_torque_body[0];
+        ctrl_msg.feed_forward_torque.y = -gravity_torque_body[1];
         ctrl_msg.rate_control_setpoint.x = rate_setpt[0];
         ctrl_msg.rate_control_setpoint.y = rate_setpt[1];
         ctrl_msg.rate_control_setpoint.z = rate_setpt[2];
