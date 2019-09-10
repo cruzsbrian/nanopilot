@@ -211,8 +211,8 @@ class Inverse_Kinematics(Node):
 
 		# ---------------------------------------------------- Setting to Constant ------------------------------------------------------
 
-		(theta1L, theta2L, theta3L) = (0.308, 1.458, 0.0)
-		(theta1R, theta2R, theta3R) = (0.308, 1.458, 0.0)
+		(theta1L, theta2L, theta3L) = (0.5487384746324476, 1.3159049730822783, −0.23205786380396604)
+		(theta1R, theta2R, theta3R) = (0.6740798934227803, 1.3446709108574468, −0.12564571676886824)
 
 		# Port 1: Left Front
 		# Port 2: Left Rear
