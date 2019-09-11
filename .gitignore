@@ -1,6 +1,7 @@
 /log
 /build*
 /install*
+/sysroot*
 
 env
 .tags
