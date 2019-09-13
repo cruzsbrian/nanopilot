@@ -31,7 +31,7 @@ class AttitudeCtrl : public rclcpp::Node
         this->declare_parameter("roll_time_cst", 0.1);
         this->declare_parameter("pitch_time_cst", 0.1);
         this->declare_parameter("yaw_time_cst", 0.5);
-        this->declare_parameter("torque_kf", 0.5);
+        this->declare_parameter("torque_kf", 0);
 
         control_timer = create_wall_timer(
                 20ms, std::bind(&AttitudeCtrl::control_update, this));
@@ -42,6 +42,9 @@ class AttitudeCtrl : public rclcpp::Node
 
     void control_update(void)
     {
+        const double f_g = 23.5; // force of gravity
+        const double coeff_friction = 0.8; // coefficient of friction b/w feet and ground
+
         // https://doi.org/10.3929/ethz-a-009970340
 
         auto ctrl_msg = autopilot_msgs::msg::RateControlSetpoint();
@@ -55,12 +58,14 @@ class AttitudeCtrl : public rclcpp::Node
         double roll_time_cst; // [s]
         double pitch_time_cst; // [s]
         double yaw_time_cst; // [s]
+        double torque_kf;
 
         // Get paramaters from ROS. If not found, the default value here is
         // used.
         this->get_parameter_or("roll_time_cst", roll_time_cst, 0.1);
         this->get_parameter_or("pitch_time_cst", pitch_time_cst, 0.1);
         this->get_parameter_or("yaw_time_cst", yaw_time_cst, 0.5);
+        this->get_parameter_or("torque_kf", torque_kf, 0.0);
 
         // Rate = K dot error.
         Eigen::Vector3d K(1/roll_time_cst, 1/pitch_time_cst, 1/yaw_time_cst);
@@ -86,16 +91,25 @@ class AttitudeCtrl : public rclcpp::Node
         Eigen::Matrix<double, 3, 3> body_to_nav_mat = estimate_body_to_nav.toRotationMatrix();
 
         // Find the gravity vector in the robot's frame.
-        Eigen::Vector3d gravity_nav(0, 0, -23.5); // mass * g
+        // Note the frame is forward-right-down for xyz
+        Eigen::Vector3d gravity_nav(0, 0, f_g);
         Eigen::Vector3d gravity_body = body_to_nav_mat.transpose() * gravity_nav;
 
         // Calculate the torque from gravity in the robot's frame.
-        Eigen::Vector3d feet_to_cg_body(0, 0, 0.44); // distance from feet to cg in meters
+        Eigen::Vector3d feet_to_cg_body(0, 0, -0.44); // distance from feet to cg in meters
         Eigen::Vector3d gravity_torque_body = feet_to_cg_body.cross(gravity_body);
+
+        // Get angle from vertical for max thrust calculation
+        Eigen::Vector3d unit_vert(0, 0, 1);
+        double angle_from_vert = acos((body_to_nav_mat * unit_vert).dot(unit_vert));
+
+        // Find max thrust that can be applied before we slide
+        double max_thrust = f_g * coeff_friction / (coeff_friction * cos(angle_from_vert) + sin(angle_from_vert));
 
         // Get attitude error: rotation transforming points from the current
         // body frame to points in the setpoint body frame.
         auto att_error = setpt_body_to_nav.conjugate()*estimate_body_to_nav;
+        att_error.normalize();
 
         // Quaternions double cover the rotation space, so we restrict it to w > 0.
         // att_error and -att_error represent the same orientation.
@@ -104,20 +118,19 @@ class AttitudeCtrl : public rclcpp::Node
         }
 
         // This gives a rotation vector whose direction is the axis of rotation
-        // (att_error.vec().normalized()) and whose length is the angle of
-        // rotation (2 * atan).
-        Eigen::Vector3d att_error_vec = att_error.vec().normalized() * 2 * atan2(att_error.vec().norm(), att_error.w());
+        //  and whose length is the sin of the angle of rotation.
+        Eigen::Vector3d att_error_vec = 2 * att_error.vec();
 
         Eigen::Vector3d rate_setpt = -K.cwiseProduct(att_error_vec);
         rate_setpt = rate_setpt.cwiseMin(max_rate_setpt).cwiseMax(-max_rate_setpt);
 
         ctrl_msg.header.stamp = pose_msg->header.stamp;
-        ctrl_msg.feed_forward_torque.x = -gravity_torque_body[0];
-        ctrl_msg.feed_forward_torque.y = -gravity_torque_body[1];
+        ctrl_msg.feed_forward_torque.x = -gravity_torque_body[0] * torque_kf;
+        ctrl_msg.feed_forward_torque.y = -gravity_torque_body[1] * torque_kf;
         ctrl_msg.rate_control_setpoint.x = rate_setpt[0];
         ctrl_msg.rate_control_setpoint.y = rate_setpt[1];
         ctrl_msg.rate_control_setpoint.z = rate_setpt[2];
-        ctrl_msg.force = att_setpt_msg->force;
+        ctrl_msg.force.z = 0.5 * max_thrust; // arbitrary safety factor
         if (leg_pose_msg) {
             ctrl_msg.actuators.actuators = leg_pose_msg->actuators;
         }

@@ -154,17 +154,57 @@ public:
 class LinearOutputMixer: public OutputMixer {
     virtual void mix(const float rate_ctrl_output_rpy[3], const struct rc_input_s &rc_inputs, const struct ap_ctrl_s &ap_ctrl, bool ap_control_en, std::array<float, NB_ACTUATORS> &output)
     {
+        // guess, should have more testing
+        const float RPS_MAX = 500;
+
+        // Mixing coefficients from parameters are loaded into here
         std::array<float, NB_ACTUATORS> coeff;
+
+        // rev/sec squared for props
+        std::array<float, NB_ACTUATORS> rps_squared;
+
         if (ap_control_en) {
             static_assert(NB_ACTUATORS <= MAX_NB_ACTUATORS);
             for (int i = 0; i < NB_ACTUATORS; i++) {
                 output[i] = ap_ctrl.direct_output[i];
             }
-            // force
+
+            // thrust mixing
             for (int axis=0; axis < 3; axis++) {
                 parameter_vector_read(&m_force_ctrl_mix[axis], coeff.data());
                 for (int i = 0; i < NB_ACTUATORS; i++) {
-                    output[i] += coeff[i] * ap_ctrl.force_xyz[axis];
+                    rps_squared[i] += coeff[i] * ap_ctrl.force_xyz[axis];
+                }
+            }
+
+            // feedforward torque from ROS
+            for (int axis=0; axis < 3; axis++) {
+                parameter_vector_read(&m_rpy_ctrl_mix[axis], coeff.data());
+                for (int i = 0; i < NB_ACTUATORS; i++) {
+                    rps_squared[i] += coeff[i] * ap_ctrl.feed_forward_torque_rpy[axis];
+                }
+            }
+
+            // roll, pitch, yaw torque from pid rate control
+            for (int axis=0; axis < 3; axis++) {
+                parameter_vector_read(&m_rpy_ctrl_mix[axis], coeff.data());
+                for (int i = 0; i < NB_ACTUATORS; i++) {
+                    rps_squared[i] += coeff[i] * rate_ctrl_output_rpy[axis];
+                }
+            }
+
+            // convert rps_squared to duty cycle output (0 to 1)
+            for (int i = 0; i < NB_ACTUATORS; i++) {
+                if (rps_squared[i] > 0) {
+                    output[i] += std::sqrt(rps_squared[i]) / RPS_MAX;
+                }
+
+                if (output[i] > 1) {
+                    output[i] = 1;
+                }
+
+                if (output[i] < 0.1 && coeff[i] != 0) {
+                    output[i] = 0.1;
                 }
             }
         } else {
@@ -184,27 +224,6 @@ class LinearOutputMixer: public OutputMixer {
             }
         }
 
-        // roll, pitch, yaw torque
-        for (int axis=0; axis < 3; axis++) {
-            parameter_vector_read(&m_rpy_ctrl_mix[axis], coeff.data());
-            for (int i = 0; i < NB_ACTUATORS; i++) {
-                output[i] += coeff[i] * rate_ctrl_output_rpy[axis];
-            }
-        }
-        if (ap_control_en) {
-            for (int axis=0; axis < 3; axis++) {
-                parameter_vector_read(&m_rpy_ctrl_mix[axis], coeff.data());
-                for (int i = 0; i < NB_ACTUATORS; i++) {
-                    output[i] += std::sqrt(coeff[i] * ap_ctrl.feed_forward_torque_rpy[axis]);
-                }
-            }
-
-            for (int i = 0; i < NB_ACTUATORS; i++) {
-                if (output[i] < 0.1 && coeff[i] != 0) {
-                    output[i] = 0.1;
-                }
-            }
-        }
     }
 
 public:
