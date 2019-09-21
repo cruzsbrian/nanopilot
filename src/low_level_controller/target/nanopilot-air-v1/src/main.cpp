@@ -161,7 +161,7 @@ class LinearOutputMixer: public OutputMixer {
         std::array<float, NB_ACTUATORS> coeff;
 
         // rev/sec squared for props
-        std::array<float, NB_ACTUATORS> rps_squared;
+        std::array<float, NB_ACTUATORS> rps_squared{};
 
         if (ap_control_en) {
             static_assert(NB_ACTUATORS <= MAX_NB_ACTUATORS);
@@ -199,7 +199,7 @@ class LinearOutputMixer: public OutputMixer {
                     output[i] += std::sqrt(rps_squared[i]) / RPS_MAX;
                 }
 
-                if (output[i] > 1) {
+                if (output[i] > 1 && coeff[i] != 0) {
                     output[i] = 1;
                 }
 

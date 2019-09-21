@@ -137,13 +137,14 @@ private:
         case RosInterfaceCommMsgID::ACTUATOR_OUTPUT:
         {
             auto deserializer = nop::Deserializer<nop::BufferReader>(msg, len);
-            std::vector<float> val;
+            std::array<float, 16> val;
             deserializer.Read(&val);
             auto message = autopilot_msgs::msg::ActuatorPositions();
             static_assert(autopilot_msgs::msg::ActuatorPositions::MAX_NB_ACTUATORS == MAX_NB_ACTUATORS);
-            for (auto a: val) {
-                message.actuators.push_back(a);
-            }
+            message.actuators.push_back(val[8]);
+            message.actuators.push_back(val[9]);
+            message.actuators.push_back(val[10]);
+            message.actuators.push_back(val[11]);
             m_output_pub->publish(message);
             break;
         }
@@ -270,11 +271,11 @@ private:
         for (unsigned i=0; i < msg->actuators.actuators.size(); i++) {
             ctrl.direct_output[i] = msg->actuators.actuators[i];
         }
-        std::cout << std::endl;
-        for (auto c :ctrl.direct_output) {
-            std::cout << c << " ";
-        }
-        std::cout << std::endl;
+        /* std::cout << std::endl; */
+        /* for (auto c :ctrl.direct_output) { */
+        /*     std::cout << c << " "; */
+        /* } */
+        /* std::cout << std::endl; */
         ctrl.feed_forward_torque_rpy[0] = msg->feed_forward_torque.x;
         ctrl.feed_forward_torque_rpy[1] = msg->feed_forward_torque.y;
         ctrl.feed_forward_torque_rpy[2] = msg->feed_forward_torque.z;
