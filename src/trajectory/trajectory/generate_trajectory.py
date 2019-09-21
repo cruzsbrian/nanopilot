@@ -158,6 +158,8 @@ def main (args=None):
     start = time.time()
 
     # XYZ Trajectory 
+
+    # step_length, step_radius, step_height, small_step_height, z_offset, ellipse_num, straight_num, step_num, left
     foot_pos_L = np.array(generate_trajectory(12, 8, 2, 2, -47, 100, 40, 10, 1))
     foot_pos_L[:,2] = -foot_pos_L[:,2]
 
@@ -188,24 +190,24 @@ def main (args=None):
     (init, expr) = inverse_init(r, d, l1, l2, l3, l4, l5, l6, l7)
 
     # Initialize the inverse kinematics 
-    # inverse_init(r, d, l1, l2, l3, l4, l5, l6, l7)
+    inverse_init(r, d, l1, l2, l3, l4, l5, l6, l7)
 
-    # # Solve the inverse kinematics 
-    # for i in range(len(foot_pos_L)):
-    #     temp = inverse(foot_pos_L[i][0], foot_pos_L[i][1], foot_pos_L[i][2], init, expr) 
-    #     temp += inverse(foot_pos_R[i][0], foot_pos_R[i][1], foot_pos_R[i][2], init, expr)
-    #     angle_positions.append(temp)
+    # Solve the inverse kinematics 
+    for i in range(len(foot_pos_L)):
+        temp = inverse(foot_pos_L[i][0], foot_pos_L[i][1], foot_pos_L[i][2], init, expr) 
+        temp += inverse(foot_pos_R[i][0], foot_pos_R[i][1], foot_pos_R[i][2], init, expr)
+        angle_positions.append(temp)
 
-    # # Write the angle positions to a file
-    # file = open("angle_positions.txt", "w+")
+    # Write the angle positions to a file
+    file = open("angle_positions.txt", "w+")
 
-    # for angle_waypoint in angle_positions:
-    #     file.write("{} {} {} {} {} {}\n".format(angle_waypoint[0], angle_waypoint[1], angle_waypoint[2], angle_waypoint[3], angle_waypoint[4], angle_waypoint[5]))
+    for angle_waypoint in angle_positions:
+        file.write("{} {} {} {} {} {}\n".format(angle_waypoint[0], angle_waypoint[1], angle_waypoint[2], angle_waypoint[3], angle_waypoint[4], angle_waypoint[5]))
 
-    # file.close()
+    file.close()
 
-    # end = time.time()
-    # print("Time: {} seconds".format(end - start))
+    end = time.time()
+    print("Time: {} seconds".format(end - start))
 
     fig = plt.figure()
     ax = plt.axes(projection='3d')

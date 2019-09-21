@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from math import pi
+from numpy import matrix
 
 def generate_trajectory(step_length, step_radius, step_height, small_step_height, z_offset, ellipse_num, straight_num, step_num, left):
     traj = []
@@ -110,42 +111,54 @@ def trapezoidal_function(curr_time, total_time, max_pos):
 
     return curr_pos
 
-def forward(r, d, l1, l2, l3, l4, l5, l6, l7, theta1, theta2, theta3):
-    J8 = Matrix([((d/2) + l1*sin(theta1) - l2*cos((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2))))), \
-                 (r*sin(theta3) + (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*cos(theta3)), \
-                 (r*cos(theta3) - (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*sin(theta3))]) + \
-         l5*((1/(sqrt(((((d/2) + l1*sin(theta1) - l2*cos((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2))))))-((d/2) + l1*sin(theta1)))**2 + \
-         (((r*sin(theta3) + (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*cos(theta3)))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))**2 + \
-         (((r*cos(theta3) - (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*sin(theta3)))-(r*cos(theta3) + l1*cos(theta1)*sin(theta3)))**2))) * \
-         (Matrix([((d/2) + l1*sin(theta1) - l2*cos((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2))))), \
-                 (r*sin(theta3) + (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*cos(theta3)), \
-                 (r*cos(theta3) - (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*sin(theta3))]) - \
-         Matrix([(d/2) + l1*sin(theta1), r*sin(theta3) - l1*cos(theta1)*cos(theta3), r*cos(theta3) + l1*cos(theta1)*sin(theta3)]))) + \
-         (l6+l7)*((1/(sqrt(((((d/2) + l1*sin(theta1) - l2*cos((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2))))))-((-d/2) - l4*sin(theta2)))**2 + \
-         (((r*sin(theta3) + (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*cos(theta3)))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2 + \
-         (((r*cos(theta3) - (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*sin(theta3)))-(r*cos(theta3) + l4*cos(theta2)*sin(theta3)))**2))) * \
-         ((Matrix([((d/2) + l1*sin(theta1) - l2*cos((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2))))), \
-                 (r*sin(theta3) + (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*cos(theta3)), \
-                 (r*cos(theta3) - (-l1*cos(theta1) - l2*sin((atan(((r*sin(theta3) - l4*cos(theta2)*cos(theta3))-(r*sin(theta3) - l1*cos(theta1)*cos(theta3)))/(((-d/2) - l4*sin(theta2))-((d/2) + l1*sin(theta1)))))+(acos((l3**2 - (sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))**2 - l2**2)/(-2*(sqrt((((d/2) + l1*sin(theta1))-((-d/2) - l4*sin(theta2)))**2 + ((r*sin(theta3) - l1*cos(theta1)*cos(theta3))-(r*sin(theta3) - l4*cos(theta2)*cos(theta3)))**2))*l2)))))*sin(theta3))])) - \
-         (Matrix([(-d/2) - l4*sin(theta2), r*sin(theta3) - l4*cos(theta2)*cos(theta3), r*cos(theta3) + l4*cos(theta2)*sin(theta3)]))))
+def forward(r, d, l1, l2, l3, l4, l5, l6, l7, theta1, theta2, theta3):        
+    sin1 = sin(theta1)
+    cos1 = cos(theta1)
+    sin2 = sin(theta2)
+    cos2 = cos(theta2)
+    sin3 = sin(theta3)
+    cos3 = cos(theta3)
+                
+    J0 = matrix([[0, 0, 0]])
+    J1R = matrix([[(d/2), r*sin3, r*cos3]])
+    J1L = matrix([[(-d/2), r*sin3, r*cos3]])
+    J2 = matrix([[J1R.item(0) + l1*sin1, J1R.item(1) - l1*cos1*cos3, J1R.item(2) + l1*cos1*sin3]])
+    J4 = matrix([[J1L.item(0) - l4*sin2, J1L.item(1) - l4*cos2*cos3, J1L.item(2) + l4*cos2*sin3]])
 
-    #return [N(J8[0]), N(J8[1]), N(J8[2])]
-    return [N(J8[0]), N(J8[2]), -N(J8[1])]
+    a = sqrt((J2.item(0)-J4.item(0))**2 + (J2.item(1)-J4.item(1))**2) 
+    beta = acos((l3**2 - a**2 - l2**2)/(-2*a*l2)) 
+    phi = atan((J4.item(1)-J2.item(1))/(J4.item(0)-J2.item(0)))       
+                                                   
+    sinpb = sin(phi+beta)
+    cospb = cos(phi+beta)
+    
+    x3 = J2.item(0) - l2*cospb
+    y3 = r*sin3 + (-l1*cos1 - l2*sinpb)*cos3
+    z3 = r*cos3 - (-l1*cos1 - l2*sinpb)*sin3
+    J3 = matrix([[x3, y3, z3]])
+    
+    slopeR = J3-J2
+    magnitudeR = sqrt(slopeR.item(0)**2 + slopeR.item(1)**2 + slopeR.item(2)**2)
+    unitR = (1/magnitudeR)*slopeR
+    J5 = J3 + unitR*l5
 
-def inverse_init(r, d, l1, l2, l3, l4, l5, l6, l7):
-	init = (0.3, 1.2, 0)
-	(theta1, theta2, theta3) = symbols('theta1, theta2, theta3', real=True)
-	expr = sp.utilities.lambdify([theta1, theta2, theta3], forward(r, d, l1, l2, l3, l4, l5, l6, l7, theta1, theta2, theta3))
+    slopeL = J3-J4
+    magnitudeL = sqrt(slopeL.item(0)**2 + slopeL.item(1)**2 + slopeL.item(2)**2)
+    unitL = (1/magnitudeL)*slopeL
+    J6 = J3 + unitL*l6
 
-	return (init, expr)
+    J8 = J5 + unitL*(l6+l7) 
+        
+    return [J8.item(0), J8.item(2), -J8.item(1)]
 
-def inverse(r, d, l1, l2, l3, l4, l5, l6, l7, x, y, z, init, expr):
+def inverse(r, d, l1, l2, l3, l4, l5, l6, l7, x, y, z): 
+    init = (0.3, 1.2, 0)
     def norm(params):
         theta1, theta2, theta3 = params
-        sol = expr(theta1, theta2, theta3)
+        sol = forward(r, d, l1, l2, l3, l4, l5, l6, l7, theta1, theta2, theta3)
         return ((sol[0]-x)**2 + (sol[1]-y)**2 + (sol[2]-z)**2)
-
-    inv = scipy.optimize.minimize(norm, init, bounds=((0, pi),(0, pi),(-pi/2, pi/2)))
+    
+    inv = scipy.optimize.minimize(norm, init, bounds=((0, pi),(0, pi),(-pi/2, pi/2)), tol=0.34)
     angles = inv.get('x')
     return [angles[0], angles[1], angles[2]]
 
@@ -156,7 +169,7 @@ class Inverse_Kinematics(Node):
 		# the name of the channel/topic is 'hip_actuators' and contains theta1, theta2, theta3; message type is ActuatorPositions
 		self.publisher = self.create_publisher(ActuatorPositions, 'hip_actuator_positions')
 
-		self.timer = self.create_timer(0.001, self.timer_callback)
+		self.timer = self.create_timer(0.005, self.timer_callback)
 		self.i = 0
 
 
@@ -189,10 +202,9 @@ class Inverse_Kinematics(Node):
 		# (xR, yR, zR) = (foot_pos_R[i][0], foot_pos_R[i][1], foot_pos_R[i][2])
 
 		# # Inverse Kinematics
-		# (init, expr) = inverse_init(r, d, l1, l2, l3, l4, l5, l6, l7)
 
-		# (theta1L, theta2L, theta3L) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xL, yL, zL, init, expr)
-		# (theta1R, theta2R, theta3R) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xR, yR, zR, init, expr)
+		# (theta1L, theta2L, theta3L) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xL, yL, zL)
+		# (theta1R, theta2R, theta3R) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xR, yR, zR)
 
 		# ----------------------------------------------------- Reading from File -------------------------------------------------------
 
@@ -212,7 +224,13 @@ class Inverse_Kinematics(Node):
 		# ---------------------------------------------------- Setting to Constant ------------------------------------------------------
 
 		(theta1L, theta2L, theta3L) = (0.5487384746324476, 1.3159049730822783, -0.23205786380396604)
-		(theta1R, theta2R, theta3R) = (0.6740798934227803, 1.3446709108574468, -0.12564571676886824)
+		(theta1R, theta2R, theta3R) = (1.0643083797708883, 1.5505819330260027, -0.2758266869048763)
+
+		#(theta1L, theta2L, theta3L) = (0.0, 1.57, 0.0)
+		#(theta1R, theta2R, theta3R) = (0.0, 1.57, 0.0)
+
+		#(theta1L, theta2L, theta3L) = (0.6755320136158106, 1.3420895144359315, 0.0)
+		#(theta1R, theta2R, theta3R) = (theta1L, theta2L, theta3L)
 
 		# Port 1: Left Front
 		# Port 2: Left Rear
@@ -226,8 +244,8 @@ class Inverse_Kinematics(Node):
 		self.get_logger().info('Publishing: "%s"' % msg.actuators)
 		self.publisher.publish(msg)
 
-		# foot_pos_L = traj
-		# self.i = (self.i + 1) % len(foot_pos_L);
+		#foot_pos_L = traj
+		#self.i = (self.i + 1) % len(foot_pos_L);
 
 def main (args=None):
 	rclpy.init(args=args)
