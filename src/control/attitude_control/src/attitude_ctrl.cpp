@@ -4,6 +4,7 @@
 #include <autopilot_msgs/msg/rate_control_setpoint.hpp>
 // #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <std_msgs/msg/bool.hpp>
 using std::placeholders::_1;
 #include <iostream>
 #include <chrono>
@@ -22,16 +23,23 @@ class AttitudeCtrl : public rclcpp::Node
     {
         att_setpt_sub = this->create_subscription<autopilot_msgs::msg::AttitudeTrajectorySetpoint>(
                 "attitude_setpoint", 1, std::bind(&AttitudeCtrl::att_setpt_cb, this, _1));
+
         pose_sub = this->create_subscription<geometry_msgs::msg::PoseStamped>(
                 "pose", 1, std::bind(&AttitudeCtrl::pose_cb, this, _1));
+
         leg_pose_sub = this->create_subscription<autopilot_msgs::msg::ActuatorPositions>(
                 "hip_actuator_positions", 1, std::bind(&AttitudeCtrl::leg_pose_cb, this, _1));
+
+        ap_in_control_sub = this->create_subscription<std_msgs::msg::Bool>(
+                "ap_in_control", 1, std::bind(&AttitudeCtrl::ap_in_control_cb, this, _1));
+
         ctrl_pub = this->create_publisher<autopilot_msgs::msg::RateControlSetpoint>("control", 10);
 
-        this->declare_parameter("roll_time_cst", 0.1);
-        this->declare_parameter("pitch_time_cst", 0.1);
+        this->declare_parameter("roll_time_cst", 1.0);
+        this->declare_parameter("pitch_time_cst", 0.6);
         this->declare_parameter("yaw_time_cst", 0.5);
-        this->declare_parameter("torque_kf", 0);
+        this->declare_parameter("torque_kf", 1.0);
+        this->declare_parameter("thrust_factor", 0.4);
 
         control_timer = create_wall_timer(
                 20ms, std::bind(&AttitudeCtrl::control_update, this));
@@ -59,13 +67,15 @@ class AttitudeCtrl : public rclcpp::Node
         double pitch_time_cst; // [s]
         double yaw_time_cst; // [s]
         double torque_kf;
+        double thrust_factor;
 
         // Get paramaters from ROS. If not found, the default value here is
         // used.
-        this->get_parameter_or("roll_time_cst", roll_time_cst, 0.1);
-        this->get_parameter_or("pitch_time_cst", pitch_time_cst, 0.1);
+        this->get_parameter_or("roll_time_cst", roll_time_cst, 0.4);
+        this->get_parameter_or("pitch_time_cst", pitch_time_cst, 0.4);
         this->get_parameter_or("yaw_time_cst", yaw_time_cst, 0.5);
-        this->get_parameter_or("torque_kf", torque_kf, 0.0);
+        this->get_parameter_or("torque_kf", torque_kf, 1.0);
+        this->get_parameter_or("thrust_factor", thrust_factor, 0.4);
 
         // Rate = K dot error.
         Eigen::Vector3d K(1/roll_time_cst, 1/pitch_time_cst, 1/yaw_time_cst);
@@ -84,11 +94,33 @@ class AttitudeCtrl : public rclcpp::Node
                 pose_msg->pose.orientation.y,
                 pose_msg->pose.orientation.z);
 
-        // Make sure we are given unit quaternions.
-        setpt_body_to_nav.normalize();
         estimate_body_to_nav.normalize();
 
+        // Set y frame to be the body frame. This gives no yaw control. For a
+        // set yaw, y could be a rotation of the inertial frame around z.
+        auto y_to_nav = Eigen::AngleAxisd(yaw_d, Eigen::Vector3d::UnitZ());
+
         Eigen::Matrix<double, 3, 3> body_to_nav_mat = estimate_body_to_nav.toRotationMatrix();
+        Eigen::Matrix<double, 3, 3> y_to_nav_mat = y_to_nav.toRotationMatrix();
+
+        // Desired force vector in the intertial frame (set to (0, 0, -1) for
+        // attitude to be upright).
+        Eigen::Vector3d f_nav(0, 0, -1);
+
+        // Desired force vector in the setpoint body frame. This is (0, 0, -1)
+        // by definition.
+        Eigen::Vector3d f_d(0, 0, -1);
+
+        // Desired force vector in the y frame.
+        Eigen::Vector3d f_y = y_to_nav_mat.transpose() * f_nav;
+
+        // Find shortest rotation that aligns the force axis of the y frame with
+        // the intertial frame.
+        auto setpt_body_to_y = Eigen::Quaterniond::FromTwoVectors(f_d, f_y);
+
+        // Transform this setpoint from y frame into inertial frame.
+        setpt_body_to_nav = y_to_nav * setpt_body_to_y;
+        setpt_body_to_nav.normalize();
 
         // Find the gravity vector in the robot's frame.
         // Note the frame is forward-right-down for xyz
@@ -104,7 +136,7 @@ class AttitudeCtrl : public rclcpp::Node
         double angle_from_vert = acos((body_to_nav_mat * unit_vert).dot(unit_vert));
 
         // Find max thrust that can be applied before we slide
-        double max_thrust = f_g * coeff_friction / (coeff_friction * cos(angle_from_vert) + sin(angle_from_vert));
+        double max_thrust = f_g;
 
         // Get attitude error: rotation transforming points from the current
         // body frame to points in the setpoint body frame.
@@ -130,7 +162,7 @@ class AttitudeCtrl : public rclcpp::Node
         ctrl_msg.rate_control_setpoint.x = rate_setpt[0];
         ctrl_msg.rate_control_setpoint.y = rate_setpt[1];
         ctrl_msg.rate_control_setpoint.z = rate_setpt[2];
-        ctrl_msg.force.z = 0.5 * max_thrust; // arbitrary safety factor
+        ctrl_msg.force.z = thrust_factor * max_thrust;
         if (leg_pose_msg) {
             ctrl_msg.actuators.actuators = leg_pose_msg->actuators;
         }
@@ -155,6 +187,24 @@ class AttitudeCtrl : public rclcpp::Node
         leg_pose_msg = msg;
     }
 
+    void ap_in_control_cb(const std_msgs::msg::Bool::SharedPtr msg)
+    {
+        if (pose_msg) {
+            if (msg->data && !last_in_control) {
+                auto estimate_body_to_nav =  Eigen::Quaterniond(pose_msg->pose.orientation.w,
+                    pose_msg->pose.orientation.x,
+                    pose_msg->pose.orientation.y,
+                    pose_msg->pose.orientation.z);
+
+                auto rotated_x = estimate_body_to_nav.toRotationMatrix() * Eigen::Vector3d::UnitX();
+                yaw_d = std::atan2(rotated_x[1], rotated_x[0]);
+                std::cout << yaw_d << std::endl;
+            }
+
+            last_in_control = msg->data;
+        }
+    }
+
     // ROS Subscribers
     rclcpp::Subscription<autopilot_msgs::msg::AttitudeTrajectorySetpoint>::SharedPtr att_setpt_sub;
     autopilot_msgs::msg::AttitudeTrajectorySetpoint::SharedPtr att_setpt_msg;
@@ -164,6 +214,10 @@ class AttitudeCtrl : public rclcpp::Node
 
     rclcpp::Subscription<autopilot_msgs::msg::ActuatorPositions>::SharedPtr leg_pose_sub;
     autopilot_msgs::msg::ActuatorPositions::SharedPtr leg_pose_msg;
+
+    rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr ap_in_control_sub;
+    bool last_in_control = false;
+    double yaw_d = 0.0;
 
     // ROS Publishers
     rclcpp::Publisher<autopilot_msgs::msg::RateControlSetpoint>::SharedPtr ctrl_pub;
