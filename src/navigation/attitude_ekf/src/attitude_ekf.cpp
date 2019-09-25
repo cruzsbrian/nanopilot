@@ -57,8 +57,8 @@ public:
             sq(deg_to_rad(180)), sq(deg_to_rad(180)), sq(deg_to_rad(180)), // angle covariance in body [(rad)^2]
             sq(deg_to_rad(2)), sq(deg_to_rad(2)), sq(deg_to_rad(2)); // gyro bias covariance [(rad/s)^2]
         Q.setZero();
-        double gyro_noise = 0.001; // gyro noise density [rad/s/sqrt(Hz)]
-        double gyro_random_walk = 0.0001; // gyro bias random walk [rad/s^2/sqrt(Hz)]
+        double gyro_noise = deg_to_rad(0.004); // gyro noise density [rad/s/sqrt(Hz)]
+        double gyro_random_walk = deg_to_rad(0.0002); // gyro bias random walk [rad/s^2/sqrt(Hz)]
         Q.diagonal() <<
             sq(gyro_noise), sq(gyro_noise), sq(gyro_noise),
             sq(gyro_random_walk), sq(gyro_random_walk), sq(gyro_random_walk);
@@ -87,7 +87,7 @@ private:
     {
 
         Eigen::Vector3d omega_gyro = 2*current_b_to_prev_b.vec()/current_b_to_prev_b.w()/delta_t;
-
+        // x.block<3,1>(3, 0).setZero();
         Eigen::Vector3d gyro_bias = x.block<3,1>(3, 0);
         Eigen::Vector3d omega_b = omega_gyro - gyro_bias;
         // RCLCPP_INFO(this->get_logger(), "gyro bias '%f %f %f'", omega_b[0], omega_b[1], omega_b[2]);

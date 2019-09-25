@@ -2,18 +2,18 @@ import rclpy
 from rclpy.node import Node
 from autopilot_msgs.msg import ActuatorPositions
 
-import sympy as sp
-from sympy import sin, cos, sqrt, Matrix, symbols, acos, atan, asin, N
-sp.init_printing()
+#import sympy as sp
+#from sympy import sin, cos, sqrt, Matrix, symbols, acos, atan, asin, N
+#sp.init_printing()
 
-import scipy
-from scipy import optimize
+#import scipy
+#from scipy import optimize
 
-import numpy as np
-import matplotlib.pyplot as plt
+#import numpy as np
+#import matplotlib.pyplot as plt
 
-from math import pi
-from numpy import matrix
+#from math import pi
+#from numpy import matrix
 
 def generate_trajectory(step_length, step_radius, step_height, small_step_height, z_offset, ellipse_num, straight_num, step_num, left):
     traj = []
@@ -158,7 +158,7 @@ def inverse(r, d, l1, l2, l3, l4, l5, l6, l7, x, y, z):
         sol = forward(r, d, l1, l2, l3, l4, l5, l6, l7, theta1, theta2, theta3)
         return ((sol[0]-x)**2 + (sol[1]-y)**2 + (sol[2]-z)**2)
     
-    inv = scipy.optimize.minimize(norm, init, bounds=((0, pi),(0, pi),(-pi/2, pi/2)), tol=0.34)
+    inv = scipy.optimize.minimize(norm, init, bounds=((0, pi),(0, pi),(-pi/2, pi/2)), tol=0.008)
     angles = inv.get('x')
     return [angles[0], angles[1], angles[2]]
 
@@ -169,8 +169,18 @@ class Inverse_Kinematics(Node):
 		# the name of the channel/topic is 'hip_actuators' and contains theta1, theta2, theta3; message type is ActuatorPositions
 		self.publisher = self.create_publisher(ActuatorPositions, 'hip_actuator_positions')
 
-		self.timer = self.create_timer(0.005, self.timer_callback)
+		self.timer = self.create_timer(0.01, self.timer_callback)
 		self.i = 0
+
+		file = open("angle_pos.txt", "r")
+
+		self.traj = []
+
+		for line in file:
+			arr = line.split()
+			self.traj.append([float(x) for x in arr])
+
+		file.close()
 
 
 	def timer_callback(self):
@@ -191,44 +201,42 @@ class Inverse_Kinematics(Node):
 
 		# ------------------------------------------------- Inverse Kinematics Onboard --------------------------------------------------
 		# Generate Trajectories
-		# foot_pos_L = np.array(generate_trajectory(14, 12, 8, 2, -45, 100, 20, 10, 1))
+		# foot_pos_L = np.array(generate_trajectory(12, 15, 5, 2, -44, 100, 70, 10, 1))
 		# foot_pos_L[:,2] = -foot_pos_L[:,2]
 
 		# (xL, yL, zL) = (foot_pos_L[i][0], foot_pos_L[i][1], foot_pos_L[i][2])
 
-		# foot_pos_R = np.array(generate_trajectory(14, 12, 8, 2, -45, 100, 20, 10, 0))
+		# foot_pos_R = np.array(generate_trajectory(12, 15, 5, 2, -44, 100, 70, 10, 0))
 		# foot_pos_R[:,2] = -foot_pos_R[:,2]
 
 		# (xR, yR, zR) = (foot_pos_R[i][0], foot_pos_R[i][1], foot_pos_R[i][2])
 
 		# # Inverse Kinematics
-
 		# (theta1L, theta2L, theta3L) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xL, yL, zL)
 		# (theta1R, theta2R, theta3R) = inverse(r, d, l1, l2, l3, l4, l5, l6, l7, xR, yR, zR)
 
 		# ----------------------------------------------------- Reading from File -------------------------------------------------------
 
-		# file = open("angle_positions.txt", "r")
+		traj = self.traj
 
-		# traj = []
-
-		# for line in file:
-		# 	arr = line.split()
-		# 	traj.append([float(x) for x in arr])
-
-		# file.close()
-
-		# (theta1L, theta2L, theta3L) = (traj[i][0], traj[i][1], traj[i][2])
-		# (theta1R, theta2R, theta3R) = (traj[i][3], traj[i][4], traj[i][5])
+		(theta1L, theta2L, theta3L) = (traj[i][0], traj[i][1], traj[i][2])
+		(theta1R, theta2R, theta3R) = (traj[i][3], traj[i][4], traj[i][5])
 
 		# ---------------------------------------------------- Setting to Constant ------------------------------------------------------
 
-		(theta1L, theta2L, theta3L) = (0.5487384746324476, 1.3159049730822783, -0.23205786380396604)
-		(theta1R, theta2R, theta3R) = (1.0643083797708883, 1.5505819330260027, -0.2758266869048763)
+		# One foot in the middle 
+		#(theta1L, theta2L, theta3L) = (0.5487384746324476, 1.3159049730822783, -0.23205786380396604)
+		#(theta1R, theta2R, theta3R) = (1.0643083797708883, 1.5505819330260027, -0.2758266869048763)
 
+		# One foot to the side 
+		#(theta1L, theta2L, theta3L) = (0.4521483364833066, 1.284017321875407, 0.0)
+		#(theta1R, theta2R, theta3R) = (1.1006098485854716, 1.5627723047360211, 0.0)
+
+		# Zero Position
 		#(theta1L, theta2L, theta3L) = (0.0, 1.57, 0.0)
 		#(theta1R, theta2R, theta3R) = (0.0, 1.57, 0.0)
 
+		# Both feet to the side, under the CG 
 		#(theta1L, theta2L, theta3L) = (0.6755320136158106, 1.3420895144359315, 0.0)
 		#(theta1R, theta2R, theta3R) = (theta1L, theta2L, theta3L)
 
@@ -244,8 +252,8 @@ class Inverse_Kinematics(Node):
 		self.get_logger().info('Publishing: "%s"' % msg.actuators)
 		self.publisher.publish(msg)
 
-		#foot_pos_L = traj
-		#self.i = (self.i + 1) % len(foot_pos_L);
+		foot_pos_L = traj
+		self.i = (self.i + 1) % len(foot_pos_L);
 
 def main (args=None):
 	rclpy.init(args=args)

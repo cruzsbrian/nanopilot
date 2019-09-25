@@ -89,17 +89,17 @@ control:
     I_out_limit: 1.000000000
     Kd: 0.000000000
     Ki: 0.000000000
-    Kp: 1
+    Kp: 0.2
   pid_pitch_controller:
     I_out_limit: 0.500000000
     Kd: 0.0000000
-    Ki: 0.00000
+    Ki: 0.30000
     Kp: 4
   pid_roll_controller:
     I_out_limit: 1.000000000
-    Kd: 0.00100000
-    Ki: 0.00000000
-    Kp: 3
+    Kd: 0.0000000
+    Ki: 0.15000000
+    Kp: 2.5
   yaw_low_pass_cutoff: 10.000000000
   pitch_low_pass_cutoff: 10.000000000
-  roll_low_pass_cutoff: 10.000000000
+  roll_low_pass_cutoff: 5.000000000

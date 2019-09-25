@@ -11,5 +11,6 @@ def generate_launch_description():
             package='attitude_ekf', node_executable='attitude_ekf', output='screen'),
         launch_ros.actions.Node(
             package='rc_control', node_executable='rc_control', output='screen'),
+
         
     ])

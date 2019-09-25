@@ -35,11 +35,11 @@ class AttitudeCtrl : public rclcpp::Node
 
         ctrl_pub = this->create_publisher<autopilot_msgs::msg::RateControlSetpoint>("control", 10);
 
-        this->declare_parameter("roll_time_cst", 1.0);
-        this->declare_parameter("pitch_time_cst", 0.6);
-        this->declare_parameter("yaw_time_cst", 0.5);
+        this->declare_parameter("roll_time_cst", 1.5);
+        this->declare_parameter("pitch_time_cst", 0.3);
+        this->declare_parameter("yaw_time_cst", 0.7);
         this->declare_parameter("torque_kf", 1.0);
-        this->declare_parameter("thrust_factor", 0.4);
+        this->declare_parameter("thrust_factor", 0.3);
 
         control_timer = create_wall_timer(
                 20ms, std::bind(&AttitudeCtrl::control_update, this));
@@ -98,6 +98,8 @@ class AttitudeCtrl : public rclcpp::Node
 
         // Set y frame to be the body frame. This gives no yaw control. For a
         // set yaw, y could be a rotation of the inertial frame around z.
+
+        // ?
         auto y_to_nav = Eigen::AngleAxisd(yaw_d, Eigen::Vector3d::UnitZ());
 
         Eigen::Matrix<double, 3, 3> body_to_nav_mat = estimate_body_to_nav.toRotationMatrix();
@@ -180,6 +182,14 @@ class AttitudeCtrl : public rclcpp::Node
     void pose_cb(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
     {
         pose_msg = msg;
+        auto estimate_body_to_nav =  Eigen::Quaterniond(pose_msg->pose.orientation.w,
+                    pose_msg->pose.orientation.x,
+                    pose_msg->pose.orientation.y,
+                    pose_msg->pose.orientation.z);
+
+        auto rotated_x = estimate_body_to_nav.toRotationMatrix() * Eigen::Vector3d::UnitX();
+        yaw_d = std::atan2(rotated_x[1], rotated_x[0]);
+        std::cout << yaw_d << std::endl;
     }
 
     void leg_pose_cb(const autopilot_msgs::msg::ActuatorPositions::SharedPtr msg)
