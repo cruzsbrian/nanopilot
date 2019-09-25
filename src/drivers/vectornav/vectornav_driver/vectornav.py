@@ -32,6 +32,8 @@ def get_register(port, nbr):
         reg = try_get_register(port, nbr)
     return reg
 
+def set_baud(port, baud):
+    port.write('\r\n$VNWRG,05,{}*XX\r\n'.format(baud).encode())
 
 def get_magnetic_field(port):
     reg = get_register(port, 17) # see page 95 of VN 100 user manual
