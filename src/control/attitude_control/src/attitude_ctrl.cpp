@@ -4,6 +4,7 @@
 #include <autopilot_msgs/msg/rate_control_setpoint.hpp>
 // #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <std_msgs/msg/u_int64.hpp>
 #include <std_msgs/msg/bool.hpp>
 using std::placeholders::_1;
 #include <iostream>
@@ -26,6 +27,9 @@ class AttitudeCtrl : public rclcpp::Node
 
         pose_sub = this->create_subscription<geometry_msgs::msg::PoseStamped>(
                 "pose", 1, std::bind(&AttitudeCtrl::pose_cb, this, _1));
+
+        time_sub = this->create_subscription<std_msgs::msg::UInt64>(
+                "timestamp", 1, std::bind(&AttitudeCtrl::time_cb, this, _1));
 
         leg_pose_sub = this->create_subscription<autopilot_msgs::msg::ActuatorPositions>(
                 "hip_actuator_positions", 1, std::bind(&AttitudeCtrl::leg_pose_cb, this, _1));
@@ -158,7 +162,9 @@ class AttitudeCtrl : public rclcpp::Node
         Eigen::Vector3d rate_setpt = -K.cwiseProduct(att_error_vec);
         rate_setpt = rate_setpt.cwiseMin(max_rate_setpt).cwiseMax(-max_rate_setpt);
 
-        ctrl_msg.header.stamp = pose_msg->header.stamp;
+        // ctrl_msg.header.stamp = pose_msg->header.stamp;
+        ctrl_msg.header.stamp = rclcpp::Time(current_time, RCL_SYSTEM_TIME);;
+
         ctrl_msg.feed_forward_torque.x = -gravity_torque_body[0] * torque_kf;
         ctrl_msg.feed_forward_torque.y = -gravity_torque_body[1] * torque_kf;
         ctrl_msg.rate_control_setpoint.x = rate_setpt[0];
@@ -197,6 +203,11 @@ class AttitudeCtrl : public rclcpp::Node
         leg_pose_msg = msg;
     }
 
+    void time_cb(const std_msgs::msg::UInt64::SharedPtr msg)
+    {
+        current_time = msg->data;
+    }
+
     void ap_in_control_cb(const std_msgs::msg::Bool::SharedPtr msg)
     {
         if (pose_msg) {
@@ -228,6 +239,9 @@ class AttitudeCtrl : public rclcpp::Node
     rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr ap_in_control_sub;
     bool last_in_control = false;
     double yaw_d = 0.0;
+
+    rclcpp::Subscription<std_msgs::msg::UInt64>::SharedPtr time_sub;
+    uint64_t current_time = 0;
 
     // ROS Publishers
     rclcpp::Publisher<autopilot_msgs::msg::RateControlSetpoint>::SharedPtr ctrl_pub;
