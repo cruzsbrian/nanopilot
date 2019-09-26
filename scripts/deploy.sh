@@ -9,4 +9,4 @@ ROOT_DIR=`pwd`/..
 
 rsync -ac -L --partial --progress ${ROOT_DIR}/build_ros2_armhf/install/ ${HOST}:ros2
 rsync -ac -L --partial --progress ${ROOT_DIR}/install_armhf/ ${HOST}:ap
-rsync -ac -L --partial --progress ${ROOT_DIR}/src/trajectory/ ${HOST}:
+# rsync -ac -L --partial --progress ${ROOT_DIR}/src/trajectory/ ${HOST}:

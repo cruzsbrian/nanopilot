@@ -11,9 +11,11 @@ class PosePublisher(Node):
     def __init__(self):
         super().__init__('vectornav_pose_publisher')
         self.port = serial.Serial(sys.argv[1], 115200)
-        vectornav_driver.vectornav.set_baud(921600)
+        vectornav_driver.vectornav.set_baud(self.port, 921600)
+        self.port.close()
         self.port = serial.Serial(sys.argv[1], 921600)
-        self.publisher_ = self.create_publisher(PoseStamped, '/pose', 10)
+        self.port.reset_input_buffer()
+        self.publisher_ = self.create_publisher(PoseStamped, '/vectornav', 10)
         timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 

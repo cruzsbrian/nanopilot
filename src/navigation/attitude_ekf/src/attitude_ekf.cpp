@@ -46,7 +46,7 @@ public:
         imu_sub = this->create_subscription<sensor_msgs::msg::Imu>(
             "imu", 10, std::bind(&AttitudeEKF::imu_cb, this, _1));
         pose_sub = this->create_subscription<geometry_msgs::msg::PoseStamped>(
-            "/vrpn_client_node/quad/pose", 10, std::bind(&AttitudeEKF::pose_cb, this, _1));
+            "/vectornav", 10, std::bind(&AttitudeEKF::pose_cb, this, _1));
 
 
         pose_pub = this->create_publisher<geometry_msgs::msg::PoseStamped>("pose", 10);
@@ -238,8 +238,10 @@ private:
             msg->pose.orientation.z);
 
         // Optitrack is Z-up, todo use TF2 for this
-        auto Mocap_to_I = Eigen::Quaterniond(cos(M_PI/2), sin(M_PI/2), 0, 0);
-        auto tracker_to_B = Eigen::Quaterniond(cos(M_PI/2), sin(M_PI/2), 0, 0);
+        // auto Mocap_to_I = Eigen::Quaterniond(cos(M_PI/2), sin(M_PI/2), 0, 0);
+        auto Mocap_to_I = Eigen::Quaterniond(1, 0, 0, 0);
+        // auto tracker_to_B = Eigen::Quaterniond(cos(M_PI/2), sin(M_PI/2), 0, 0);
+        auto tracker_to_B = Eigen::Quaterniond(1, 0, 0, 0);
         auto measured_tracker_to_I = Mocap_to_I*measured_tracker_to_Mocap;
         auto measured_B_to_I = measured_tracker_to_I*tracker_to_B.conjugate();
 

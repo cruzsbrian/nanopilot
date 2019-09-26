@@ -217,16 +217,16 @@ class Inverse_Kinematics(Node):
 
 		# ----------------------------------------------------- Reading from File -------------------------------------------------------
 
-		traj = self.traj
+		# traj = self.traj
 
-		(theta1L, theta2L, theta3L) = (traj[i][0], traj[i][1], traj[i][2])
-		(theta1R, theta2R, theta3R) = (traj[i][3], traj[i][4], traj[i][5])
+		# (theta1L, theta2L, theta3L) = (traj[i][0], traj[i][1], traj[i][2])
+		# (theta1R, theta2R, theta3R) = (traj[i][3], traj[i][4], traj[i][5])
 
 		# ---------------------------------------------------- Setting to Constant ------------------------------------------------------
 
 		# One foot in the middle 
-		#(theta1L, theta2L, theta3L) = (0.5487384746324476, 1.3159049730822783, -0.23205786380396604)
-		#(theta1R, theta2R, theta3R) = (1.0643083797708883, 1.5505819330260027, -0.2758266869048763)
+		(theta1L, theta2L, theta3L) = (0.5487384746324476, 1.3159049730822783, -0.23205786380396604)
+		(theta1R, theta2R, theta3R) = (1.0643083797708883, 1.5505819330260027, -0.2758266869048763)
 
 		# One foot to the side 
 		#(theta1L, theta2L, theta3L) = (0.4521483364833066, 1.284017321875407, 0.0)
@@ -252,8 +252,8 @@ class Inverse_Kinematics(Node):
 		self.get_logger().info('Publishing: "%s"' % msg.actuators)
 		self.publisher.publish(msg)
 
-		foot_pos_L = traj
-		self.i = (self.i + 1) % len(foot_pos_L);
+		# foot_pos_L = traj
+		# self.i = (self.i + 1) % len(foot_pos_L);
 
 def main (args=None):
 	rclpy.init(args=args)

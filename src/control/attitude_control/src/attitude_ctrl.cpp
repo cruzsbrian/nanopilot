@@ -125,7 +125,8 @@ class AttitudeCtrl : public rclcpp::Node
         auto setpt_body_to_y = Eigen::Quaterniond::FromTwoVectors(f_d, f_y);
 
         // Transform this setpoint from y frame into inertial frame.
-        setpt_body_to_nav = y_to_nav * setpt_body_to_y;
+        // setpt_body_to_nav = y_to_nav * setpt_body_to_y;
+        setpt_body_to_nav = y_to_nav * setpt_body_to_nav;
         setpt_body_to_nav.normalize();
 
         // Find the gravity vector in the robot's frame.
@@ -188,14 +189,14 @@ class AttitudeCtrl : public rclcpp::Node
     void pose_cb(const geometry_msgs::msg::PoseStamped::SharedPtr msg)
     {
         pose_msg = msg;
-        auto estimate_body_to_nav =  Eigen::Quaterniond(pose_msg->pose.orientation.w,
-                    pose_msg->pose.orientation.x,
-                    pose_msg->pose.orientation.y,
-                    pose_msg->pose.orientation.z);
+        // auto estimate_body_to_nav =  Eigen::Quaterniond(pose_msg->pose.orientation.w,
+        //             pose_msg->pose.orientation.x,
+        //             pose_msg->pose.orientation.y,
+        //             pose_msg->pose.orientation.z);
 
-        auto rotated_x = estimate_body_to_nav.toRotationMatrix() * Eigen::Vector3d::UnitX();
-        yaw_d = std::atan2(rotated_x[1], rotated_x[0]);
-        std::cout << yaw_d << std::endl;
+        // auto rotated_x = estimate_body_to_nav.toRotationMatrix() * Eigen::Vector3d::UnitX();
+        // yaw_d = std::atan2(rotated_x[1], rotated_x[0]);
+        // std::cout << yaw_d << std::endl;
     }
 
     void leg_pose_cb(const autopilot_msgs::msg::ActuatorPositions::SharedPtr msg)
@@ -210,7 +211,7 @@ class AttitudeCtrl : public rclcpp::Node
 
     void ap_in_control_cb(const std_msgs::msg::Bool::SharedPtr msg)
     {
-        if (pose_msg) {
+        if (pose_msg && att_setpt_msg) {
             if (msg->data && !last_in_control) {
                 auto estimate_body_to_nav =  Eigen::Quaterniond(pose_msg->pose.orientation.w,
                     pose_msg->pose.orientation.x,
@@ -219,6 +220,15 @@ class AttitudeCtrl : public rclcpp::Node
 
                 auto rotated_x = estimate_body_to_nav.toRotationMatrix() * Eigen::Vector3d::UnitX();
                 yaw_d = std::atan2(rotated_x[1], rotated_x[0]);
+
+                auto setpt_body_to_nav =  Eigen::Quaterniond(att_setpt_msg->orientation.w,
+                    att_setpt_msg->orientation.x,
+                    att_setpt_msg->orientation.y,
+                    att_setpt_msg->orientation.z);
+
+                auto sp_rotated_x = setpt_body_to_nav.toRotationMatrix() * Eigen::Vector3d::UnitX();
+                yaw_d = yaw_d - std::atan2(sp_rotated_x[1], sp_rotated_x[0]);
+
                 std::cout << yaw_d << std::endl;
             }
 
